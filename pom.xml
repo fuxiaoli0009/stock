@@ -6,7 +6,15 @@
 	<groupId>com.stock</groupId>
 	<artifactId>stock</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<packaging>jar</packaging>
+	<modules>
+		<module>stock-web</module>
+		<module>stockweb</module>
+		<module>stock-persistence</module>
+		<module>stock-model</module>
+		<module>stock-service</module>
+		<module>stock-core</module>
+	</modules>
+	<packaging>pom</packaging>
 
 	<name>stock</name>
 	<description>Stock View</description>
