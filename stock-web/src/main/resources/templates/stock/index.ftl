@@ -7,6 +7,7 @@
         <script>
             $(function(){
                 $('#tableId').on('dblclick','td',function(){
+                    var tdIndex = $(this).index();        //获取td索引
                     var id = $(this).parent().attr("id");
                     var oldVal = $(this).text();
                     var input = "<input type='text' style='width:100px' id='tmpId' value='" + oldVal + "' >";
@@ -24,7 +25,8 @@
                                 async: true,
                                 data: {
                                     code:id,
-                                    buyPrice:oldVal
+                                    value:oldVal,
+                                    tdIndex:tdIndex
                                 },
                                 dataType:'json',
                                 success: function (data) {
@@ -56,13 +58,14 @@
                 <table id="tableId" class="table table-condensed table-striped table-hover">
                     <thead>
                     <tr>
-                        <th>编号</th>
-                        <th>股票代码</th>
-                        <th>股票名称</th>
-                        <th>实时价格</th>
-                        <th>期望价格</th>
-                        <th>买入还差</th>
-                        <th>ss</th>
+                        <th width="4%">编号</th>
+                        <th width="8%">股票代码</th>
+                        <th width="8%">股票名称</th>
+                        <th width="8%">实时价格</th>
+                        <th width="8%">期望价格</th>
+                        <th width="8%">买入还差</th>
+                        <th width="6%">PB/PE</th>
+                        <th width="50%">备注</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -74,7 +77,8 @@
                         <td>${stockInfo.realtimePrice}</td>
                         <td>${stockInfo.buyPrice}</td>
                         <td>${stockInfo.buyRate}</td>
-                        <td><a href="https://www.jisilu.cn/data/stock/${stockInfo.code}" target="_blank">历史PE/PB</a> </td>
+                        <td><a href="https://www.jisilu.cn/data/stock/${stockInfo.code}" target="_blank">PE/PB</a> </td>
+                        <td>${stockInfo.description}</td>
                     </tr>
                     </#list>
                     </tbody>

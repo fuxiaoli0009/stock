@@ -48,4 +48,6 @@ public class StockInfo {
     @Transient
     public String buyRate;
 
+    public String description;
+
 }

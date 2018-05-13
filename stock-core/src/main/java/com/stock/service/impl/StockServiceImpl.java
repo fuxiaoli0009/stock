@@ -25,9 +25,14 @@ public class StockServiceImpl implements StockService {
         return stockRepository.findAll();
     }
 
-    public void update(String code, String buyPrice){
+    public void update(String tdIndex, String code, String value){
         StockInfo stock = stockRepository.findByCode(code);
-        stock.setBuyPrice(buyPrice);
+        if("4".equals(tdIndex)){
+            stock.setBuyPrice(value);
+        }
+        if("7".equals(tdIndex)){
+            stock.setDescription(value);
+        }
         stockRepository.save(stock);
     }
 }

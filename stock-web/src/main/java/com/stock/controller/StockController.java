@@ -66,7 +66,7 @@ public class StockController {
                 String buyPrice = stockInfoList.get(i).getBuyPrice();
                 Float realtimePriceDouble = Float.parseFloat(realtimePrice);
                 if(buyPrice==null || "".equals(buyPrice)){
-                    buyPrice = "0";
+                    buyPrice = "1000";
                 }
                 Float buyPriceDouble = Float.parseFloat(buyPrice);
                 stockInfo.setRealtimePrice(numberFormat.format(realtimePriceDouble));
@@ -83,6 +83,7 @@ public class StockController {
                     stockInfo.setBuyRate("0");
                 }
                 stockInfo.setRealtimeDate(stockData[30]+" "+stockData[31]);
+                stockInfo.setDescription(stockInfoList.get(i).getDescription()==null?"":stockInfoList.get(i).getDescription());
                 viewList.add(stockInfo);
             }
         }
@@ -116,9 +117,10 @@ public class StockController {
     }
 
     @GetMapping("/update")
-    public void cancel(@RequestParam("code") String code,
-                           @RequestParam("buyPrice") String buyPrice) {
-        stockService.update(code, buyPrice);
-        System.out.println("code:"+code+", buyPrice:"+buyPrice);
+    public void update(@RequestParam("tdIndex") String tdIndex,
+                        @RequestParam("code") String code,
+                        @RequestParam("value") String value) {
+        stockService.update(tdIndex, code, value);
+        log.info("code:{}, tdIndex:{}, value:{}", code, tdIndex, value);
     }
 }

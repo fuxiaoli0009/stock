@@ -16,6 +16,6 @@ public interface StockService {
      */
     public List<StockInfo> findAll();
 
-    public void update(String code, String buyPrice);
+    public void update(String tdIndex, String code, String value);
 
 }

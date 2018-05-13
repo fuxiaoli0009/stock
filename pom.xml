@@ -8,10 +8,8 @@
 	<version>0.0.1-SNAPSHOT</version>
 	<modules>
 		<module>stock-web</module>
-		<module>stockweb</module>
 		<module>stock-persistence</module>
 		<module>stock-model</module>
-		<module>stock-service</module>
 		<module>stock-core</module>
 	</modules>
 	<packaging>pom</packaging>
@@ -76,15 +74,5 @@
 		</dependency>
 
 	</dependencies>
-
-	<build>
-		<plugins>
-			<plugin>
-				<groupId>org.springframework.boot</groupId>
-				<artifactId>spring-boot-maven-plugin</artifactId>
-			</plugin>
-		</plugins>
-	</build>
-
 
 </project>
