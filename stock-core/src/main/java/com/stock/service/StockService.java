@@ -18,4 +18,5 @@ public interface StockService {
 
     public void update(String tdIndex, String code, String value);
 
+    public void delete(String code);
 }

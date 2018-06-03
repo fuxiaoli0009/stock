@@ -21,18 +21,23 @@ public class StockServiceImpl implements StockService {
     private StockRepository stockRepository;
 
     public List<StockInfo> findAll(){
-
         return stockRepository.findAll();
     }
 
     public void update(String tdIndex, String code, String value){
         StockInfo stock = stockRepository.findByCode(code);
         if("4".equals(tdIndex)){
-            stock.setBuyPrice(value);
+            stock.setBuyPrice(Double.parseDouble(value));
         }
-        if("7".equals(tdIndex)){
+        if("8".equals(tdIndex)){
             stock.setDescription(value);
         }
+        stockRepository.save(stock);
+    }
+
+    public void delete(String code){
+        StockInfo stock = stockRepository.findByCode(code);
+        stock.setFlag(2);
         stockRepository.save(stock);
     }
 }

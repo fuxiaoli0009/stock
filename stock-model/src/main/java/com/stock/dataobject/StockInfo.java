@@ -28,26 +28,43 @@ public class StockInfo {
     /**
      * 实时价格
      */
-    public String realtimePrice;
-
-    /**
-     * 实时时间
-     */
-    public String realtimeDate;
+    @Transient
+    public Double realTimePrice;
 
     /**
      * 买入价格
      */
-    public String buyPrice;
+    public Double buyPrice;
 
     /**
      * 卖出价格
      */
-    public String sellPrice;
+    public Double sellPrice;
 
+    /**
+     * 5178前复权最高价
+     */
+    public Double maxValue;
+
+    /**
+     * 5178前复权最低价
+     */
+    public Double minValue;
+
+    /**
+     * 买入还差
+     */
     @Transient
     public String buyRate;
 
+    /**
+     * 最高点已跌百分比
+     */
+    @Transient
+    public String maxRate;
+
     public String description;
+
+    public int flag;
 
 }
