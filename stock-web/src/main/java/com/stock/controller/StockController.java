@@ -14,7 +14,6 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.servlet.ModelAndView;
 
 import java.text.DecimalFormat;
-import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -41,6 +40,10 @@ public class StockController {
 
         List<StockInfo> deletedList = new ArrayList<StockInfo>();
 
+        List<StockInfo> hugeFallList = new ArrayList<StockInfo>();
+
+        List<StockInfo> hugeFallList2 = new ArrayList<StockInfo>();
+
         try {
             //查询所有关注股票
             List<StockInfo> stockInfoList = stockService.findAll();
@@ -65,27 +68,24 @@ public class StockController {
                     if(stockInfo.getBuyRate().startsWith("-")){
                         canBuyList.add(stockInfo);
                     }
-
-                    if(stockInfo.getFlag() == 2){  //已删除
-                        deletedList.add(stockInfo);
-                        iterable.remove();
+                    String maxRate = stockInfo.getMaxRate();
+                    if (maxRate!=null) {
+                        if(maxRate.startsWith("9")){
+                            hugeFallList.add(stockInfo);
+                        }
+                        if(maxRate.startsWith("85") || maxRate.startsWith("86") || maxRate.startsWith("87") || maxRate.startsWith("88") || maxRate.startsWith("89")){
+                            hugeFallList2.add(stockInfo);
+                        }
                     }
                 }
-                /*for (StockInfo stockInfo : viewList) {
-                    if(stockInfo.getBuyRate().startsWith("-")){
-                        canBuyList.add(stockInfo);
-                    }
-                    if(stockInfo.getFlag0() == 2){  //已删除
-                        deletedList.add(stockInfo);
-                    }
-                }*/
             }
             map.put("viewList", viewList);
             map.put("canBuyList", canBuyList);
-            map.put("deletedList", deletedList);
+            map.put("hugeFallList", hugeFallList);
+            map.put("hugeFallList2", hugeFallList2);
             log.info("viewList:" + viewList.size());
             log.info("canBuyList:" + canBuyList.size());
-            log.info("deletedList:" + deletedList.size());
+            log.info("hugeFallList:" + hugeFallList.size());
         }catch (Exception e){
             log.error(e.getMessage());
         }
@@ -109,13 +109,13 @@ public class StockController {
 
     //组装数据
     public List<StockInfo> assembleDatas(String response, List<StockInfo> stockInfoList) {
+        DecimalFormat df = new DecimalFormat("0.00%");
         List<StockInfo> viewList = new ArrayList<StockInfo>();
         String[] result = response.split("\n");
         if(result != null && result.length > 0){
             for(int i=0; i<result.length; i++) {
                 String[] stockData = result[i].split(",");
                 if (stockData != null && stockData.length > 0) {
-                    NumberFormat numberFormat = NumberFormat.getInstance();
                     StockInfo stockInfo = new StockInfo();
 
                     //股票代码和名称
@@ -132,6 +132,20 @@ public class StockController {
                     }
                     stockInfo.setRealTimePrice(realTimePrice);
 
+                    //昨日收盘价格
+                    Double yesterDayPrice = 0.0;
+                    if(stockData[2].startsWith("0.0")){
+                        yesterDayPrice = realTimePrice;
+                    } else {
+                        yesterDayPrice = Double.parseDouble(stockData[2]);
+                    }
+                    //今日涨跌幅
+                    String ratePercent = "";
+                    if(yesterDayPrice >=0 ){
+                        ratePercent = df.format((realTimePrice - yesterDayPrice) / yesterDayPrice);
+                    }
+                    stockInfo.setRatePercent(ratePercent);
+
                     //买入价格
                     Double buyPrice = stockInfoList.get(i).getBuyPrice();
                     if (buyPrice == null || "".equals(buyPrice)) {
@@ -140,7 +154,6 @@ public class StockController {
                     stockInfo.setBuyPrice(buyPrice);
 
                     //买入还差百分之几
-                    DecimalFormat df = new DecimalFormat("0.00%");
                     String buyRate = "";
                     if(realTimePrice>=0){
                         buyRate = df.format((realTimePrice - buyPrice) / realTimePrice);
@@ -153,7 +166,7 @@ public class StockController {
                     //最高点已跌百分比
                     Double maxValue = stockInfoList.get(i).getMaxValue();
                     String maxRate = "";
-                    if(maxValue>=0){
+                    if(maxValue!=null && maxValue>=0){
                         maxRate = df.format((maxValue - realTimePrice) / maxValue);
                     }
                     stockInfo.setMaxRate(maxRate);
@@ -201,11 +214,40 @@ public class StockController {
     }
 
     @GetMapping("/delete")
-    public void delete(@RequestParam("code") String code){
-        log.info("Delete info : code:" + code);
-        stockService.delete(code);
-        log.info("Dpdate sucess.");
+    public String delete(@RequestParam("code") String code){
+        try {
+            log.info("Delete info : code:" + code);
+            stockService.delete(code);
+        }catch (Exception e){
+            log.error(e.getMessage());
+        }
+        log.info("Delete sucess.");
+        return "删除成功";
     }
 
+    @GetMapping("/add")
+    public String add(@RequestParam("code") String code){
+        try {
+            code = code.startsWith("6") ? "sh" : "sz" + code;
+            String response = restTemplate.getForObject(url+code, String.class);
+            String[] result = response.split("\n");
+            if(result != null && result.length > 0) {
+                String[] stockData = result[0].split(",");
+                if (stockData != null && stockData.length > 0) {
+                    StockInfo stockInfo = new StockInfo();
+                    //股票代码和名称
+                    String nameStr = stockData[0];
+                    stockInfo.setCode(nameStr.substring(13, 19));
+                    stockInfo.setName(nameStr.substring(21, nameStr.length()));
+                    log.info("Add info : code:" + code);
+                    stockService.add(stockInfo);
+                }
+            }
+        }catch (Exception e){
+            log.error(e.getMessage());
+        }
+        log.info("Add sucess.");
+        return "添加成功";
+    }
 
 }

@@ -63,6 +63,12 @@ public class StockInfo {
     @Transient
     public String maxRate;
 
+    /**
+     * 今日涨跌幅
+     */
+    @Transient
+    public String ratePercent;
+
     public String description;
 
     public int flag;
