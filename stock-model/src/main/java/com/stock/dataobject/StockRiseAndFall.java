@@ -6,7 +6,6 @@ import lombok.Data;
  * @Author: fuxiaoli
  * @Date: 2018/4/6
  **/
-@Data
 public class StockRiseAndFall {
 
     /**
@@ -105,4 +104,196 @@ public class StockRiseAndFall {
      */
     private Integer priceStop;
 
+	public Integer getTotal() {
+		return total;
+	}
+
+	public void setTotal(Integer total) {
+		this.total = total;
+	}
+
+	public Integer getTotalUp() {
+		return totalUp;
+	}
+
+	public void setTotalUp(Integer totalUp) {
+		this.totalUp = totalUp;
+	}
+
+	public Integer getTotalDown() {
+		return totalDown;
+	}
+
+	public void setTotalDown(Integer totalDown) {
+		this.totalDown = totalDown;
+	}
+
+	public Integer getLimitUp() {
+		return limitUp;
+	}
+
+	public void setLimitUp(Integer limitUp) {
+		this.limitUp = limitUp;
+	}
+
+	public Integer getRealLimitUp() {
+		return realLimitUp;
+	}
+
+	public void setRealLimitUp(Integer realLimitUp) {
+		this.realLimitUp = realLimitUp;
+	}
+
+	public Integer getLimitDown() {
+		return limitDown;
+	}
+
+	public void setLimitDown(Integer limitDown) {
+		this.limitDown = limitDown;
+	}
+
+	public Integer getRealLimitDown() {
+		return realLimitDown;
+	}
+
+	public void setRealLimitDown(Integer realLimitDown) {
+		this.realLimitDown = realLimitDown;
+	}
+
+	public Integer getUp0To3() {
+		return up0To3;
+	}
+
+	public void setUp0To3(Integer up0To3) {
+		this.up0To3 = up0To3;
+	}
+
+	public String getUp0To3Percentage() {
+		return up0To3Percentage;
+	}
+
+	public void setUp0To3Percentage(String up0To3Percentage) {
+		this.up0To3Percentage = up0To3Percentage;
+	}
+
+	public Integer getUp3To5() {
+		return up3To5;
+	}
+
+	public void setUp3To5(Integer up3To5) {
+		this.up3To5 = up3To5;
+	}
+
+	public String getUp3To5Percentage() {
+		return up3To5Percentage;
+	}
+
+	public void setUp3To5Percentage(String up3To5Percentage) {
+		this.up3To5Percentage = up3To5Percentage;
+	}
+
+	public Integer getUp5To7() {
+		return up5To7;
+	}
+
+	public void setUp5To7(Integer up5To7) {
+		this.up5To7 = up5To7;
+	}
+
+	public String getUp5To7Percentage() {
+		return up5To7Percentage;
+	}
+
+	public void setUp5To7Percentage(String up5To7Percentage) {
+		this.up5To7Percentage = up5To7Percentage;
+	}
+
+	public Integer getUp7To10() {
+		return up7To10;
+	}
+
+	public void setUp7To10(Integer up7To10) {
+		this.up7To10 = up7To10;
+	}
+
+	public String getUp7To10Percentage() {
+		return up7To10Percentage;
+	}
+
+	public void setUp7To10Percentage(String up7To10Percentage) {
+		this.up7To10Percentage = up7To10Percentage;
+	}
+
+	public Integer getDown0To3() {
+		return down0To3;
+	}
+
+	public void setDown0To3(Integer down0To3) {
+		this.down0To3 = down0To3;
+	}
+
+	public String getDown0To3Percentage() {
+		return down0To3Percentage;
+	}
+
+	public void setDown0To3Percentage(String down0To3Percentage) {
+		this.down0To3Percentage = down0To3Percentage;
+	}
+
+	public Integer getDown3To5() {
+		return down3To5;
+	}
+
+	public void setDown3To5(Integer down3To5) {
+		this.down3To5 = down3To5;
+	}
+
+	public String getDown3To5Percentage() {
+		return down3To5Percentage;
+	}
+
+	public void setDown3To5Percentage(String down3To5Percentage) {
+		this.down3To5Percentage = down3To5Percentage;
+	}
+
+	public Integer getDown5To7() {
+		return down5To7;
+	}
+
+	public void setDown5To7(Integer down5To7) {
+		this.down5To7 = down5To7;
+	}
+
+	public String getDown5To7Percentage() {
+		return down5To7Percentage;
+	}
+
+	public void setDown5To7Percentage(String down5To7Percentage) {
+		this.down5To7Percentage = down5To7Percentage;
+	}
+
+	public Integer getDown7To10() {
+		return down7To10;
+	}
+
+	public void setDown7To10(Integer down7To10) {
+		this.down7To10 = down7To10;
+	}
+
+	public String getDown7To10Percentage() {
+		return down7To10Percentage;
+	}
+
+	public void setDown7To10Percentage(String down7To10Percentage) {
+		this.down7To10Percentage = down7To10Percentage;
+	}
+
+	public Integer getPriceStop() {
+		return priceStop;
+	}
+
+	public void setPriceStop(Integer priceStop) {
+		this.priceStop = priceStop;
+	}
+    
 }
