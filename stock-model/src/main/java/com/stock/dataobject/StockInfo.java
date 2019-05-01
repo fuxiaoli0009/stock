@@ -1,7 +1,5 @@
 package com.stock.dataobject;
 
-import lombok.Data;
-
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
@@ -9,7 +7,7 @@ import javax.persistence.Transient;
 
 @Entity
 @Table(name="tb_stock")
-public class StockInfo {
+public class StockInfo implements Comparable<StockInfo>{
 
     @Id
     public int id;
@@ -49,6 +47,8 @@ public class StockInfo {
      * 5178前复权最低价
      */
     public Double minValue;
+    
+    public Double buyRateDouble;
 
     /**
      * 买入还差
@@ -70,7 +70,7 @@ public class StockInfo {
 
     public String description;
 
-    public int flag;
+    public String PBPEUrl;
 
 	public int getId() {
 		return id;
@@ -168,13 +168,29 @@ public class StockInfo {
 		this.description = description;
 	}
 
-	public int getFlag() {
-		return flag;
+	public String getPBPEUrl() {
+		return PBPEUrl;
 	}
 
-	public void setFlag(int flag) {
-		this.flag = flag;
+	public void setPBPEUrl(String pBPEUrl) {
+		PBPEUrl = pBPEUrl;
+	}
+
+	public Double getBuyRateDouble() {
+		return buyRateDouble;
+	}
+
+	public void setBuyRateDouble(Double buyRateDouble) {
+		this.buyRateDouble = buyRateDouble;
+	}
+
+	@Override
+	public int compareTo(StockInfo stockInfo) {
+		if(this.buyRateDouble > stockInfo.getBuyRateDouble()) {
+			return 1;
+		}else {
+			return -1;
+		}
 	}
     
-
 }

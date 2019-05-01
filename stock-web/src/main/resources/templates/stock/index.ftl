@@ -7,46 +7,49 @@
     <script src="https://cdn.bootcss.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
 </head>
 <body>
+
 <ul class="nav nav-tabs">
-    <li class="active"><a href="#home" data-toggle="tab">主页</a></li>
-    <li><a href="#hongkong" data-toggle="tab">港股</a></li>
-    <li><a href="#hugeFallList2" data-toggle="tab">-85%</a></li>
-    <li><a href="#hugeFallList" data-toggle="tab">-90%</a></li>
-    <li><a href="#canBuyList" data-toggle="tab">买入<#if (canBuyList?size>0)><button type="button" class="btn btn-xs btn-danger ">${canBuyList?size}</button></#if></a></li>
+    <li class="active"><a href="#hs" data-toggle="tab">主页</a></li>
+    <li><a href="#hk" data-toggle="tab">港股</a></li>
     <li><a href="#addStock" data-toggle="tab">添加</a></li>
 </ul>
+
 <div class="tab-content">
-    <div class="tab-pane fade in active" id="home">
-        <table id="tableId" class="table table-condensed table-striped table-hover">
+    <div class="tab-pane fade in active" id="hs">
+        <table class="table table-condensed table-striped table-hover">
             <thead>
             <tr class="success">
                 <th width="2%"></th>
-                <th width="6%">代码</th>
-                <th width="10%">名称</th>
-                <th width="6%">最新</th>
-                <th width="6%">涨跌</th>
-                <th width="6%">期望</th>
-                <th width="6%">买入差</th>
-                <th width="6%">最大跌</th>
-                <th width="5%">PB/PE</th>
-                <th width="41%">备注</th>
+                <th width="16%">股票</th>
+                <th width="4%">最新</th>
+                <th width="4%">涨跌</th>
+                <th width="4%">期望</th>
+                <th width="10%">买入差（最大跌）</th>
+                <th width="4%">PB/PE</th>
+                <th width="50%">备注</th>
                 <th width="6%">操作</th>
             </tr>
             </thead>
             <tbody>
-            <#list viewList?sort_by("buyRate") as stockInfo>
-            <tr id='${stockInfo.code}'>
-                <td>${stockInfo_index+1}</td>
-                <td>${stockInfo.code}</td>
-                <td>${stockInfo.name}</td>
-                <td>${stockInfo.realTimePrice}</td>
-                <td>${stockInfo.ratePercent}</td>
-                <td>${stockInfo.buyPrice}</td>
-                <td>${stockInfo.buyRate}</td>
-                <td>${stockInfo.maxRate}</td>
-                <td><small><small><a href="https://www.jisilu.cn/data/stock/${stockInfo.code}" target="_blank">PE/PB</a></small></small></td>
-                <td><small><small>${stockInfo.description}</small></small></td>
-                <td><small><small><button type="button" class="btn btn-primary btn-xs" onclick="deleteStock('${stockInfo.code}')">删除</button></small></small></td>
+            <#list hsStocks as stock>
+            <#if stock.buyRateDouble<0>
+            <tr id='${stock.code}' class='danger'>
+			<#elseif (stock.buyRateDouble>=0 && stock.buyRateDouble<0.05)>
+			<tr id='${stock.code}' class='warning'>
+			<#elseif (stock.buyRateDouble>=0.05 && stock.buyRateDouble<0.1)>
+			<tr id='${stock.code}' class='info'>
+			<#else>
+			<tr id='${stock.code}'>
+			</#if>
+                <td>${stock_index+1}</td>
+                <td>${stock.code} ${stock.name}</td>
+                <td>${stock.realTimePrice}</td>
+                <td>${stock.ratePercent}</td>
+                <td>${stock.buyPrice}</td>
+                <td>${stock.buyRate}（${stock.maxRate}）</td>
+                <td><small><small><a href="${stock.PBPEUrl}" target="_blank">PE/PB</a></small></small></td>
+                <td><small><small>${stock.description}</small></small></td>
+                <td><small><small><button type="button" class="btn btn-primary btn-xs" onclick="deleteStock('${stock.code}')">删除</button></small></small></td>
             </tr>
             </#list>
             </tbody>
@@ -54,149 +57,45 @@
     </div>
 
     <!-- 港股 -->
-    <div class="tab-pane" id="hongkong">
+    <div class="tab-pane" id="hk">
         <table id="tableId" class="table table-condensed table-striped table-hover">
             <thead>
             <tr class="success">
                 <th width="2%"></th>
-                <th width="6%">代码</th>
-                <th width="10%">名称</th>
-                <th width="6%">最新</th>
-                <th width="6%">涨跌</th>
-                <th width="6%">期望</th>
-                <th width="6%">买入差</th>
-                <th width="6%">最大跌</th>
-                <th width="5%">PB/PE</th>
-                <th width="41%">备注</th>
+                <th width="16%">股票</th>
+                <th width="4%">最新</th>
+                <th width="4%">涨跌</th>
+                <th width="4%">期望</th>
+                <th width="10%">买入差（最大跌）</th>
+                <th width="54%">备注</th>
                 <th width="6%">操作</th>
             </tr>
             </thead>
             <tbody>
-            <#list hkviewList?sort_by("buyRate") as stockInfo>
-            <tr id='${stockInfo.code}'>
-                <td>${stockInfo_index+1}</td>
-                <td>${stockInfo.code}</td>
-                <td>${stockInfo.name}</td>
-                <td>${stockInfo.realTimePrice}</td>
-                <td>${stockInfo.ratePercent}</td>
-                <td>${stockInfo.buyPrice}</td>
-                <td>${stockInfo.buyRate}</td>
-                <td>${stockInfo.maxRate}</td>
-                <td><small><small><a href="https://www.jisilu.cn/data/stock/${stockInfo.code}" target="_blank">PE/PB</a></small></small></td>
-                <td><small><small>${stockInfo.description}</small></small></td>
-                <td><small><small><button type="button" class="btn btn-primary btn-xs" onclick="deleteStock('${stockInfo.code}')">删除</button></small></small></td>
+            <#list hkStocks as stock>
+            <#if stock.buyRateDouble<0>
+            <tr id='${stock.code}' class='danger'>
+			<#elseif (stock.buyRateDouble>=0 && stock.buyRateDouble<0.05)>
+			<tr id='${stock.code}' class='warning'>
+			<#elseif (stock.buyRateDouble>=0.05 && stock.buyRateDouble<0.1)>
+			<tr id='${stock.code}' class='info'>
+			<#else>
+			<tr id='${stock.code}'>
+			</#if>
+                <td>${stock_index+1}</td>
+                <td>${stock.code} ${stock.name}</td>
+                <td>${stock.realTimePrice}</td>
+                <td>${stock.ratePercent}</td>
+                <td>${stock.buyPrice}</td>
+                <td>${stock.buyRate}（${stock.maxRate}）</td>
+                <td><small><small>${stock.description}</small></small></td>
+                <td><small><small><button type="button" class="btn btn-primary btn-xs" onclick="deleteStock('${stock.code}')">删除</button></small></small></td>
             </tr>
             </#list>
             </tbody>
         </table>
     </div>
 
-    <div class="tab-pane" id="hugeFallList2">
-        <table id="tableId" class="table table-condensed table-striped table-hover">
-            <thead>
-            <tr class="success">
-                <th width="2%"></th>
-                <th width="6%">代码</th>
-                <th width="10%">名称</th>
-                <th width="6%">最新</th>
-                <th width="6%">涨跌</th>
-                <th width="6%">期望</th>
-                <th width="6%">买入差</th>
-                <th width="6%">最大跌</th>
-                <th width="5%">PB/PE</th>
-                <th width="41%">备注</th>
-                <th width="6%">操作</th>
-            </tr>
-            </thead>
-            <tbody>
-            <#list hugeFallList2?sort_by("buyRate") as stockInfo>
-            <tr id='${stockInfo.code}'>
-                <td>${stockInfo_index+1}</td>
-                <td>${stockInfo.code}</td>
-                <td>${stockInfo.name}</td>
-                <td>${stockInfo.realTimePrice}</td>
-                <td>${stockInfo.ratePercent}</td>
-                <td>${stockInfo.buyPrice}</td>
-                <td>${stockInfo.buyRate}</td>
-                <td>${stockInfo.maxRate}</td>
-                <td><small><small><a href="https://www.jisilu.cn/data/stock/${stockInfo.code}" target="_blank">PE/PB</a></small></small></td>
-                <td><small><small>${stockInfo.description}</small></small></td>
-                <td><small><small><button type="button" class="btn btn-primary btn-xs" onclick="deleteStock('${stockInfo.code}')">删除</button></small></small></td>
-            </tr>
-            </#list>
-            </tbody>
-        </table>
-    </div>
-
-    <div class="tab-pane" id="hugeFallList">
-        <table id="tableId" class="table table-condensed table-striped table-hover">
-            <thead>
-            <tr class="success">
-                <th width="2%"></th>
-                <th width="6%">代码</th>
-                <th width="10%">名称</th>
-                <th width="6%">最新</th>
-                <th width="6%">涨跌</th>
-                <th width="6%">期望</th>
-                <th width="6%">买入差</th>
-                <th width="6%">最大跌</th>
-                <th width="5%">PB/PE</th>
-                <th width="41%">备注</th>
-                <th width="6%">操作</th>
-            </tr>
-            </thead>
-            <tbody>
-            <#list hugeFallList?sort_by("buyRate") as stockInfo>
-            <tr id='${stockInfo.code}'>
-                <td>${stockInfo_index+1}</td>
-                <td>${stockInfo.code}</td>
-                <td>${stockInfo.name}</td>
-                <td>${stockInfo.realTimePrice}</td>
-                <td>${stockInfo.ratePercent}</td>
-                <td>${stockInfo.buyPrice}</td>
-                <td>${stockInfo.buyRate}</td>
-                <td>${stockInfo.maxRate}</td>
-                <td><small><small><a href="https://www.jisilu.cn/data/stock/${stockInfo.code}" target="_blank">PE/PB</a></small></small></td>
-                <td><small><small>${stockInfo.description}</small></small></td>
-                <td><small><small><button type="button" class="btn btn-primary btn-xs" onclick="deleteStock('${stockInfo.code}')">删除</button></small></small></td>
-            </tr>
-            </#list>
-            </tbody>
-        </table>
-    </div>
-
-    <div class="tab-pane" id="canBuyList">
-        <table id="" class="table table-condensed table-striped table-hover">
-            <thead>
-            <tr>
-                <th width="2%"></th>
-                <th width="6%">代码</th>
-                <th width="10%">名称</th>
-                <th width="8%">实时价</th>
-                <th width="8%">期望价</th>
-                <th width="6%">买入差</th>
-                <th width="6%">最大跌</th>
-                <th width="6%">PB/PE</th>
-                <th width="48%">备注</th>
-            </tr>
-            </thead>
-            <tbody>
-            <#list canBuyList?sort_by("buyRate") as stockInfo>
-            <tr id='${stockInfo.code}'>
-                <td>${stockInfo_index+1}</td>
-                <td>${stockInfo.code}</td>
-                <td>${stockInfo.name}</td>
-                <td>${stockInfo.realTimePrice}</td>
-                <td>${stockInfo.buyPrice}</td>
-                <td>${stockInfo.buyRate}</td>
-                <td>${stockInfo.maxRate}</td>
-                <td><small><small><a href="https://www.jisilu.cn/data/stock/${stockInfo.code}" target="_blank">PE/PB</a></small></small></td>
-                <td><small><small>${stockInfo.description}</small></small></td>
-            </tr>
-            </#list>
-            </tbody>
-        </table>
-    </div>
 
     <div class="tab-pane" id="addStock">
         <form class="form-horizontal" role="form">

@@ -13,4 +13,18 @@
 	<properties>
 		<maven-jar-plugin.version>2.6</maven-jar-plugin.version>
 	</properties>
+	
+	<build>
+		<plugins>
+			<plugin>
+                <groupId>org.mybatis.generator</groupId>
+                <artifactId>mybatis-generator-maven-plugin</artifactId>
+                <configuration>
+                    <configurationFile>${basedir}/src/main/resources/sqlmap/generatorConfig.xml</configurationFile>
+                    <overwrite>true</overwrite>
+                    <verbose>true</verbose>
+                </configuration>
+            </plugin>
+		</plugins>
+	</build>	
 </project>
