@@ -16,7 +16,7 @@
 
 <div class="tab-content">
     <div class="tab-pane fade in active" id="hs">
-        <table class="table table-condensed table-striped table-hover">
+        <table id="tableId" class="table table-condensed table-striped table-hover">
             <thead>
             <tr class="success">
                 <th width="2%"></th>
@@ -178,7 +178,7 @@
             return false;
         }
         $.ajax({
-            url: "http://127.0.0.1:8080/stock/delete",
+            url: "http://39.105.142.63:8080/stock/delete",
             type: 'get',
             async: true,
             data: {
@@ -221,7 +221,7 @@
         }
         
         $.ajax({
-            url: "http://127.0.0.1:8080/stock/add",
+            url: "http://39.105.142.63:8080/stock/addStock",
             type: 'get',
             async: true,
             data: {

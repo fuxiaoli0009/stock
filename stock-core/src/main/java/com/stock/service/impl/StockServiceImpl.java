@@ -3,6 +3,7 @@ package com.stock.service.impl;
 import com.stock.dataobject.StockInfo;
 import com.stock.enums.StockStatusEnum;
 import com.stock.enums.StockTypeEnum;
+import com.stock.enums.TableTdIndexEnum;
 import com.stock.model.TbStock;
 import com.stock.model.TbStockExample;
 import com.stock.repository.TbStockMapper;
@@ -15,6 +16,7 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executors;
@@ -82,22 +84,43 @@ public class StockServiceImpl implements StockService, InitializingBean {
 	public void setHkStocks(List<TbStock> hkStocks) {
 		this.hkStocks = hkStocks;
 	}
+	
+	public void update(String tdIndex, String code, String value){ 
+		TbStock tbStock = this.selectTbStockByCode(code);
+		if(tbStock!=null) {
+			if(TableTdIndexEnum.TABLE_TD_BUYPRICE.getCode().equals(tdIndex)) {
+				tbStock.setBuyPrice(new BigDecimal(value));
+			}else if(TableTdIndexEnum.TABLE_TD_DESC.getCode().equals(tdIndex)) {
+				tbStock.setDescription(value);
+			}
+			tbStockMapper.updateByPrimaryKeySelective(tbStock);
+		}
+	}
+	
+	public TbStock selectTbStockByCode(String code) {
+		TbStockExample example = new TbStockExample();
+		example.createCriteria().andCodeEqualTo(code).andStatusEqualTo(StockStatusEnum.STOCK_STATUS_INIT.getCode());
+		List<TbStock> tbStocks = tbStockMapper.selectByExample(example);
+		if(tbStocks!=null&&tbStocks.size()>0) {
+			return tbStocks.get(0);
+		}
+		return null;
+	}
 
+	@Override
+	public void delete(String code) {
+		TbStock tbStock = this.selectTbStockByCode(code);
+		if(tbStock!=null) {
+			tbStock.setStatus("1");
+			tbStockMapper.updateByPrimaryKeySelective(tbStock);
+		}
+	}
 
-	/*
-	 * public void update(String tdIndex, String code, String value){ StockInfo
-	 * stock = stockRepository.findByCode(code); if("5".equals(tdIndex)){
-	 * stock.setBuyPrice(Double.parseDouble(value)); } if("9".equals(tdIndex)){
-	 * stock.setDescription(value); } stockRepository.save(stock); }
-	 * 
-	 * public void delete(String code){ StockInfo stockInfo =
-	 * stockRepository.findByCode(code); if(stockInfo!=null){
-	 * stockRepository.delete(stockInfo); } }
-	 * 
-	 * public String add(StockInfo stockInfo){ StockInfo stock =
-	 * stockRepository.findByCode(stockInfo.getCode()); if(stock==null){
-	 * stockInfo.setSellPrice(0.00); stockInfo.setMinValue(0.00);
-	 * stockRepository.save(stockInfo); } return null; }
-	 */
+	@Override
+	public void addStock(TbStock tbStock) {
+		if(this.selectTbStockByCode(tbStock.getCode())==null) {
+			tbStockMapper.insertSelective(tbStock);
+		}
+	}
 
 }

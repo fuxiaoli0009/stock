@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.servlet.ModelAndView;
@@ -67,10 +68,8 @@ public class StockController {
         	
         	Collections.sort(hsViewStocks);
         	Collections.sort(hkViewStocks);
-        	
         	map.put("hsStocks", hsViewStocks);
             map.put("hkStocks", hkViewStocks);
-            
             log.info("沪深数量:{}, 港股数量:{}", hsViewStocks.size(), hkViewStocks.size());
         }catch (Exception e){
         	log.error("获取股票数据异常, 错误信息:{}", ExceptionUtils.getStackTrace(e));
@@ -170,64 +169,29 @@ public class StockController {
         }
         return viewList;
     }
-
-    /**
-     * 获取股票涨跌数量
-     * @param map
-     * @return
-     */
-    @GetMapping("/findRiseAndFallData")
-    public ModelAndView findRiseAndFallData(Map<String, Object> map){
-        String response = restTemplate.getForObject("https://www.legulegu.com/stockdata/market-activity", String.class);
-        Map<String, Integer> riseAndFallDataMap = StockUtil.findRiseAndFallData(response);
-        log.info("size:"+riseAndFallDataMap.size());
-        StockRiseAndFall stockRiseAndFall = new StockRiseAndFall();
-        StockUtil.mapToBean(riseAndFallDataMap, stockRiseAndFall);
-        stockRiseAndFall.setUp0To3Percentage(StockUtil.calPercentage(Float.valueOf(stockRiseAndFall.getUp0To3()), Float.valueOf(stockRiseAndFall.getTotal())));
-        stockRiseAndFall.setUp3To5Percentage(StockUtil.calPercentage(Float.valueOf(stockRiseAndFall.getUp3To5()), Float.valueOf(stockRiseAndFall.getTotal())));
-        stockRiseAndFall.setUp5To7Percentage(StockUtil.calPercentage(Float.valueOf(stockRiseAndFall.getUp5To7()), Float.valueOf(stockRiseAndFall.getTotal())));
-        stockRiseAndFall.setUp7To10Percentage(StockUtil.calPercentage(Float.valueOf(stockRiseAndFall.getUp7To10()), Float.valueOf(stockRiseAndFall.getTotal())));
-        stockRiseAndFall.setDown0To3Percentage(StockUtil.calPercentage(Float.valueOf(stockRiseAndFall.getDown0To3()), Float.valueOf(stockRiseAndFall.getTotal())));
-        stockRiseAndFall.setDown3To5Percentage(StockUtil.calPercentage(Float.valueOf(stockRiseAndFall.getDown3To5()), Float.valueOf(stockRiseAndFall.getTotal())));
-        stockRiseAndFall.setDown5To7Percentage(StockUtil.calPercentage(Float.valueOf(stockRiseAndFall.getDown5To7()), Float.valueOf(stockRiseAndFall.getTotal())));
-        stockRiseAndFall.setDown7To10Percentage(StockUtil.calPercentage(Float.valueOf(stockRiseAndFall.getDown7To10()), Float.valueOf(stockRiseAndFall.getTotal())));
-        map.put("stockRiseAndFall", stockRiseAndFall);
-        return new ModelAndView("/stock/riseAndFallData", "map", map);
+    
+    @ApiOperation(value = "更新", httpMethod = "GET")
+    @RequestMapping(value = "/update", method = RequestMethod.GET)
+    public void update(@RequestParam("tdIndex") String tdIndex, @RequestParam("code") String code, 
+    		@RequestParam("value") String value){
+    	stockService.update(tdIndex, code, value);
     }
-
-	/*
-	 * @GetMapping("/update") public void update(@RequestParam("tdIndex") String
-	 * tdIndex,
-	 * 
-	 * @RequestParam("code") String code,
-	 * 
-	 * @RequestParam("value") String value) { log.info("Update info : code:" + code
-	 * + ", tdIndex:" + tdIndex + ", value:" + value); stockService.update(tdIndex,
-	 * code, value); log.info("update sucess."); }
-	 * 
-	 * @GetMapping("/delete") public String delete(@RequestParam("code") String
-	 * code){ try { log.info("Delete info : code:" + code);
-	 * stockService.delete(code); }catch (Exception e){ log.error(e.getMessage()); }
-	 * log.info("Delete sucess."); return "删除成功"; }
-	 * 
-	 * @GetMapping("/add") public String add(@RequestParam("code") String
-	 * code, @RequestParam("name") String name,
-	 * 
-	 * @RequestParam("maxPrice") String maxPrice, @RequestParam("buyPrice") String
-	 * buyPrice){ try { StockInfo stockInfo = new StockInfo();
-	 * stockInfo.setCode(code); stockInfo.setName(name);
-	 * stockInfo.setBuyPrice(Double.parseDouble(buyPrice));
-	 * stockInfo.setMaxValue(Double.parseDouble(maxPrice));;
-	 * stockService.add(stockInfo); }catch (Exception e){ log.error(e.getMessage());
-	 * } log.info(code + " add sucess."); return "添加成功"; }
-	 * 
-	 * public static void main(String[] args) { BigDecimal b1 = new
-	 * BigDecimal(Double.toString(12-13.5)); BigDecimal b2 = new
-	 * BigDecimal(Double.toString(13.5)); Double rslt = b1.divide(b2, 4,
-	 * BigDecimal.ROUND_HALF_UP).doubleValue(); System.out.println(rslt); //
-	 * scale表示表示需要精确到小数点以后几位。 NumberFormat nf = NumberFormat.getPercentInstance();
-	 * nf.setMaximumIntegerDigits(2);//小数点前保留几位 nf.setMinimumFractionDigits(2);//
-	 * 小数点后保留几位 System.out.println(nf.format(rslt)); }
-	 */
-
+    
+    @ApiOperation(value = "删除", httpMethod = "GET")
+    @RequestMapping(value = "/delete", method = RequestMethod.GET)
+    public void delete(@RequestParam("code") String code) {
+    	stockService.delete(code);
+    }
+    
+    @RequestMapping(value = "/addStock", method = RequestMethod.GET)
+    public void addStock(@RequestParam("code") String code, @RequestParam("name") String name, 
+    		@RequestParam("maxPrice") String maxPrice, @RequestParam("buyPrice") String buyPrice) {
+    	TbStock tbStock = new TbStock();
+    	tbStock.setCode(code);
+    	tbStock.setName(name);
+    	tbStock.setBuyPrice(new BigDecimal(buyPrice));
+    	tbStock.setMaxValue(new BigDecimal(maxPrice));
+    	stockService.addStock(tbStock);
+    }
+	  
 }
