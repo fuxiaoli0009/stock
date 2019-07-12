@@ -1,6 +1,5 @@
 package com.stock.service.impl;
 
-import com.stock.dataobject.StockInfo;
 import com.stock.enums.StockStatusEnum;
 import com.stock.enums.StockTypeEnum;
 import com.stock.enums.TableTdIndexEnum;
@@ -33,6 +32,8 @@ public class StockServiceImpl implements StockService, InitializingBean {
 	
 	private List<TbStock> hkStocks = new ArrayList<TbStock>();
 	
+	private List<TbStock> starStocks = new ArrayList<TbStock>();
+	
     @Autowired
     private TbStockMapper tbStockMapper;
     
@@ -46,6 +47,7 @@ public class StockServiceImpl implements StockService, InitializingBean {
 			public void run() {
 				hsStocks = updateStockCache(StockTypeEnum.STOCK_STATUS_HS.getCode());
 				hkStocks = updateStockCache(StockTypeEnum.STOCK_STATUS_HK.getCode());
+				starStocks = updateStockCache(StockTypeEnum.STOCK_STAR.getCode());
 			}
     		
     	}, 0, 5, TimeUnit.MINUTES);
@@ -66,9 +68,66 @@ public class StockServiceImpl implements StockService, InitializingBean {
 
 	@Override
 	public List<TbStock> getStocksByType(String typeCode) {
-		return StockTypeEnum.STOCK_STATUS_HS.getCode().equals(typeCode) ? hsStocks : hkStocks;
+		if(StockTypeEnum.STOCK_STATUS_HS.getCode().equals(typeCode)) {
+			return hsStocks;
+		}else if(StockTypeEnum.STOCK_STATUS_HK.getCode().equals(typeCode)) {
+			return hkStocks;
+		}else if(StockTypeEnum.STOCK_STAR.getCode().equals(typeCode)) {
+			return starStocks;
+		}else {
+			return null;
+		}
 	}
 	
+	public void update(String tdIndex, String code, String value){ 
+		try {
+			logger.info("code:{}, 数据更新.", code);
+			TbStock tbStock = this.selectTbStockByCode(code);
+			if(tbStock!=null) {
+				if(TableTdIndexEnum.TABLE_TD_BUYPRICE.getCode().equals(tdIndex)) {
+					tbStock.setBuyPrice(new BigDecimal(value));
+				}else if(TableTdIndexEnum.TABLE_TD_DESC.getCode().equals(tdIndex)) {
+					tbStock.setDescription(value);
+				}
+				tbStockMapper.updateByPrimaryKeySelective(tbStock);
+				logger.info("code:{}, 数据更新成功.", code);
+			}
+		} catch (Exception e) {
+			logger.info("code:{}, 数据更新异常.", code, e);
+		}
+	}
+	
+	public TbStock selectTbStockByCode(String code) {
+		TbStockExample example = new TbStockExample();
+		example.createCriteria().andCodeEqualTo(code).andStatusEqualTo(StockStatusEnum.STOCK_STATUS_INIT.getCode());
+		List<TbStock> tbStocks = tbStockMapper.selectByExample(example);
+		if(tbStocks!=null&&tbStocks.size()>0) {
+			return tbStocks.get(0);
+		}
+		return null;
+	}
+
+	@Override
+	public void delete(String code) {
+		try {
+			logger.info("code:{}, 数据删除.", code);
+			TbStock tbStock = this.selectTbStockByCode(code);
+			if(tbStock!=null) {
+				tbStockMapper.deleteByPrimaryKey(tbStock.getId());
+				logger.info("code:{}, 数据删除成功.", code);
+			}
+		} catch (Exception e) {
+			logger.info("code:{}, 数据删除异常.", code, e);
+		}
+	}
+
+	@Override
+	public void addStock(TbStock tbStock) {
+		if(this.selectTbStockByCode(tbStock.getCode())==null) {
+			tbStockMapper.insertSelective(tbStock);
+		}
+	}
+
 	public List<TbStock> getHsStocks() {
 		return hsStocks;
 	}
@@ -85,42 +144,4 @@ public class StockServiceImpl implements StockService, InitializingBean {
 		this.hkStocks = hkStocks;
 	}
 	
-	public void update(String tdIndex, String code, String value){ 
-		TbStock tbStock = this.selectTbStockByCode(code);
-		if(tbStock!=null) {
-			if(TableTdIndexEnum.TABLE_TD_BUYPRICE.getCode().equals(tdIndex)) {
-				tbStock.setBuyPrice(new BigDecimal(value));
-			}else if(TableTdIndexEnum.TABLE_TD_DESC.getCode().equals(tdIndex)) {
-				tbStock.setDescription(value);
-			}
-			tbStockMapper.updateByPrimaryKeySelective(tbStock);
-		}
-	}
-	
-	public TbStock selectTbStockByCode(String code) {
-		TbStockExample example = new TbStockExample();
-		example.createCriteria().andCodeEqualTo(code).andStatusEqualTo(StockStatusEnum.STOCK_STATUS_INIT.getCode());
-		List<TbStock> tbStocks = tbStockMapper.selectByExample(example);
-		if(tbStocks!=null&&tbStocks.size()>0) {
-			return tbStocks.get(0);
-		}
-		return null;
-	}
-
-	@Override
-	public void delete(String code) {
-		TbStock tbStock = this.selectTbStockByCode(code);
-		if(tbStock!=null) {
-			tbStock.setStatus("1");
-			tbStockMapper.updateByPrimaryKeySelective(tbStock);
-		}
-	}
-
-	@Override
-	public void addStock(TbStock tbStock) {
-		if(this.selectTbStockByCode(tbStock.getCode())==null) {
-			tbStockMapper.insertSelective(tbStock);
-		}
-	}
-
 }

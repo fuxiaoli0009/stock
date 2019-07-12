@@ -10,11 +10,12 @@
 
 <ul class="nav nav-tabs">
     <li class="active"><a href="#hs" data-toggle="tab">主页</a></li>
+    <li><a href="#starStock" data-toggle="tab">科创</a></li>
     <li><a href="#hk" data-toggle="tab">港股</a></li>
     <li><a href="#addStock" data-toggle="tab">添加</a></li>
 </ul>
 
-<div class="tab-content">
+<div class="tab-content" id="totalId">
     <div class="tab-pane fade in active" id="hs">
         <table id="tableId" class="table table-condensed table-striped table-hover">
             <thead>
@@ -55,9 +56,9 @@
             </tbody>
         </table>
     </div>
-
-    <!-- 港股 -->
-    <div class="tab-pane" id="hk">
+    
+    <!-- 科创 -->
+    <div class="tab-pane" id="starStock">
         <table id="tableId" class="table table-condensed table-striped table-hover">
             <thead>
             <tr class="success">
@@ -67,7 +68,49 @@
                 <th width="4%">涨跌</th>
                 <th width="4%">期望</th>
                 <th width="10%">买入差（最大跌）</th>
-                <th width="54%">备注</th>
+                <th width="4%">PB/PE</th>
+                <th width="50%">备注</th>
+                <th width="6%">操作</th>
+            </tr>
+            </thead>
+            <tbody>
+            <#list starStocks as stock>
+            <#if stock.buyRateDouble<0>
+            <tr id='${stock.code}' class='danger'>
+			<#elseif (stock.buyRateDouble>=0 && stock.buyRateDouble<0.05)>
+			<tr id='${stock.code}' class='warning'>
+			<#elseif (stock.buyRateDouble>=0.05 && stock.buyRateDouble<0.1)>
+			<tr id='${stock.code}' class='info'>
+			<#else>
+			<tr id='${stock.code}'>
+			</#if>
+                <td>${stock_index+1}</td>
+                <td>${stock.code} ${stock.name}</td>
+                <td>${stock.realTimePrice}</td>
+                <td>${stock.ratePercent}</td>
+                <td>${stock.buyPrice}</td>
+                <td>${stock.buyRate}（${stock.maxRate}）</td>
+                <td><small><small><a href="${stock.PBPEUrl}" target="_blank">PE/PB</a></small></small></td>
+                <td><small><small>${stock.description}</small></small></td>
+                <td><small><small><button type="button" class="btn btn-primary btn-xs" onclick="deleteStock('${stock.code}')">删除</button></small></small></td>
+            </tr>
+            </#list>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- 港股 -->
+    <div class="tab-pane" id="hk">
+        <table id="tableId" class="table table-condensed table-striped table-hover">
+            <thead>
+            <tr class="success">
+                <th width="2%"></th>
+                <th width="26%">股票</th>
+                <th width="4%">最新</th>
+                <th width="4%">涨跌</th>
+                <th width="4%">期望</th>
+                <th width="10%">买入差（最大跌）</th>
+                <th width="44%">备注</th>
                 <th width="6%">操作</th>
             </tr>
             </thead>
@@ -95,7 +138,6 @@
             </tbody>
         </table>
     </div>
-
 
     <div class="tab-pane" id="addStock">
         <form class="form-horizontal" role="form">
@@ -137,8 +179,9 @@
 </body>
 </html>
 <script>
+    var homeUrl = "http://localhost:8080/";
     $(function(){
-        $('#tableId').on('dblclick','td',function(){
+        $('#totalId').on('dblclick','td',function(){
             var tdIndex = $(this).index();        //获取td索引
             var id = $(this).parent().attr("id");
             var oldVal = $(this).text();
@@ -152,7 +195,7 @@
                     oldVal = $(this).val();
                     // 调用后台逻辑修改
                     $.ajax({
-                        url: "http://39.105.142.63:8080/stock/update",
+                        url: homeUrl + "stock/update",
                         type: 'get',
                         async: true,
                         data: {
@@ -171,14 +214,14 @@
             });
         });
     });
-
+    
     function deleteStock(code){
-        var statu = confirm("确认删除？");
+        var statu = confirm("确认删除【"+code+"】"+"?");
         if(!statu){
             return false;
         }
         $.ajax({
-            url: "http://39.105.142.63:8080/stock/delete",
+            url: homeUrl + "stock/delete",
             type: 'get',
             async: true,
             data: {
@@ -221,7 +264,7 @@
         }
         
         $.ajax({
-            url: "http://39.105.142.63:8080/stock/addStock",
+            url: "http://localhost:8080/stock/addStock",
             type: 'get',
             async: true,
             data: {
