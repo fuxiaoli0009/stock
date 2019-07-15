@@ -179,7 +179,7 @@
 </body>
 </html>
 <script>
-    var homeUrl = "http://localhost:8080/";
+    var homeUrl = "http://39.105.142.63:8080/";
     $(function(){
         $('#totalId').on('dblclick','td',function(){
             var tdIndex = $(this).index();        //获取td索引
@@ -264,7 +264,7 @@
         }
         
         $.ajax({
-            url: "http://localhost:8080/stock/addStock",
+            url: homeUrl + "stock/addStock",
             type: 'get',
             async: true,
             data: {
