@@ -21,13 +21,13 @@
             <thead>
             <tr class="success">
                 <th width="2%"></th>
-                <th width="16%">股票</th>
+                <th width="15%">股票</th>
                 <th width="4%">最新</th>
                 <th width="4%">涨跌</th>
                 <th width="4%">期望</th>
-                <th width="10%">买入差（最大跌）</th>
+                <th width="12%">买入差（最大跌）</th>
                 <th width="4%">PB/PE</th>
-                <th width="50%">备注</th>
+                <th width="49%">备注</th>
                 <th width="6%">操作</th>
             </tr>
             </thead>
@@ -63,13 +63,13 @@
             <thead>
             <tr class="success">
                 <th width="2%"></th>
-                <th width="16%">股票</th>
+                <th width="15%">股票</th>
                 <th width="4%">最新</th>
                 <th width="4%">涨跌</th>
                 <th width="4%">期望</th>
-                <th width="10%">买入差（最大跌）</th>
+                <th width="12%">买入差（最大跌）</th>
                 <th width="4%">PB/PE</th>
-                <th width="50%">备注</th>
+                <th width="49%">备注</th>
                 <th width="6%">操作</th>
             </tr>
             </thead>

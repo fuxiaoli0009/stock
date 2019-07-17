@@ -8,3 +8,4 @@
     <input type="file" name="filename"/>
     <input type="submit" value="提交上传"/>
 </form>
+格式：type、code、name、maxValue

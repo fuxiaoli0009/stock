@@ -90,6 +90,8 @@ public class StockController {
                 		if(code.length() == 5) {
                 			sb.append("hk");
                 		}
+                	}else if(StockTypeEnum.STOCK_STAR.getCode().equals(typeCode)) {
+                		sb.append("sh");
                 	}
     				sb.append(code);
     				sb.append(",");

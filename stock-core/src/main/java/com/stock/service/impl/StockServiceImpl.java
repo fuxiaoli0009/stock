@@ -143,5 +143,20 @@ public class StockServiceImpl implements StockService, InitializingBean {
 	public void setHkStocks(List<TbStock> hkStocks) {
 		this.hkStocks = hkStocks;
 	}
+
+	@Override
+	public List<TbStock> selectByExample(TbStockExample example) {
+		return tbStockMapper.selectByExample(example);
+	}
+
+	@Override
+	public int updateByExampleSelective(TbStock record, TbStockExample example) {
+		return tbStockMapper.updateByExampleSelective(record, example);
+	}
+
+	@Override
+	public int insertSelective(TbStock record) {
+		return tbStockMapper.insertSelective(record);
+	}
 	
 }
