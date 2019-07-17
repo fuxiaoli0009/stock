@@ -46,7 +46,8 @@ public class RabbitMQServiceImpl implements RabbitMQService {
 				TbStock record = tbStockList.get(0);
 				TbStockExample stockExample = new TbStockExample();
 				if(tbStock.getMaxValue()!=null) {
-					stockExample.or().andMaxValueEqualTo(tbStock.getMaxValue());
+					record.setMaxValue(tbStock.getMaxValue());
+					stockExample.or().andCodeEqualTo(tbStock.getCode());
 				}
 				stockService.updateByExampleSelective(record, stockExample);
 				logger.info("code:{},更新成功.", tbStock.getCode());
