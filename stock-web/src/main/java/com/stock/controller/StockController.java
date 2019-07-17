@@ -11,7 +11,6 @@ import org.apache.commons.lang.exception.ExceptionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -21,13 +20,10 @@ import org.springframework.web.servlet.ModelAndView;
 
 import com.alibaba.fastjson.JSON;
 import com.stock.dataobject.StockInfo;
-import com.stock.dataobject.StockRiseAndFall;
 import com.stock.enums.StockTypeEnum;
 import com.stock.model.TbStock;
 import com.stock.service.SinaApiService;
 import com.stock.service.StockService;
-import com.stock.utils.StockUtil;
-
 import io.swagger.annotations.ApiOperation;
 
 @RestController
@@ -44,9 +40,6 @@ public class StockController {
     @Autowired
     private SinaApiService sinaApiService;
 
-    @Autowired
-    private RestTemplate restTemplate;
-    
     @ApiOperation(value = "查询", httpMethod = "GET")
     @RequestMapping(value = "/index", method = RequestMethod.GET)
     public ModelAndView index(Map<String, Object> map){
@@ -199,6 +192,12 @@ public class StockController {
     	tbStock.setBuyPrice(new BigDecimal(buyPrice));
     	tbStock.setMaxValue(new BigDecimal(maxPrice));
     	stockService.addStock(tbStock);
+    }
+    
+    @ApiOperation(value = "文件上传", httpMethod = "GET")
+    @RequestMapping(value = "/uploadExcel", method = RequestMethod.GET)
+    public ModelAndView uploadExcel() {
+    	return new ModelAndView("/stock/uploadExcel");
     }
 	  
 }
