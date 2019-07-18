@@ -1,10 +1,11 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <title>Fuxiaoli-Stock</title>
+    <title>Fuxiaoli</title>
     <link href="https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css"  rel="stylesheet" >
     <script src="https://cdn.bootcss.com/jquery/2.1.1/jquery.min.js"></script>
     <script src="https://cdn.bootcss.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script src="home.js"></script>
 </head>
 <body>
 
@@ -27,7 +28,7 @@
                 <th width="4%">期望</th>
                 <th width="12%">买入差（最大跌）</th>
                 <th width="4%">PB/PE</th>
-                <th width="49%">备注</th>
+                <!-- <th width="49%">备注</th> -->
                 <th width="6%">操作</th>
             </tr>
             </thead>
@@ -46,11 +47,21 @@
                 <td>${stock.code} ${stock.name}</td>
                 <td>${stock.realTimePrice}</td>
                 <td>${stock.ratePercent}</td>
-                <td>${stock.buyPrice}</td>
+                <td id='${stock.code}' ondblclick="updateColumn($(this), 'buyprice')">${stock.buyPrice}</td>
                 <td>${stock.buyRate}（${stock.maxRate}）</td>
                 <td><small><small><a href="${stock.PBPEUrl}" target="_blank">PE/PB</a></small></small></td>
-                <td><small><small>${stock.description}</small></small></td>
                 <td><small><small><button type="button" class="btn btn-primary btn-xs" onclick="deleteStock('${stock.code}')">删除</button></small></small></td>
+            </tr>
+            <#if stock.buyRateDouble<0>
+            <tr id='${stock.code}' class='danger'>
+			<#elseif (stock.buyRateDouble>=0 && stock.buyRateDouble<0.05)>
+			<tr id='${stock.code}' class='warning'>
+			<#elseif (stock.buyRateDouble>=0.05 && stock.buyRateDouble<0.1)>
+			<tr id='${stock.code}' class='info'>
+			<#else>
+			<tr id='${stock.code}'>
+			</#if>
+                <td id='${stock.code}' colspan="8" ondblclick="updateColumn($(this), 'description')"><small><small>&nbsp;&nbsp;${stock.description}</small></small></td>
             </tr>
             </#list>
             </tbody>
@@ -179,8 +190,9 @@
 </body>
 </html>
 <script>
-    var homeUrl = "http://39.105.142.63:8080/";
-    $(function(){
+    //var homeUrl = "http://39.105.142.63:8080/api/";
+    var homeUrl = "http://127.0.0.1:8080/api/";
+    /* $(function(){
         $('#totalId').on('dblclick','td',function(){
             var tdIndex = $(this).index();        //获取td索引
             var id = $(this).parent().attr("id");
@@ -213,7 +225,7 @@
                 $(this).closest('td').text(oldVal);
             });
         });
-    });
+    }); */
     
     function deleteStock(code){
         var statu = confirm("确认删除【"+code+"】"+"?");
@@ -221,7 +233,7 @@
             return false;
         }
         $.ajax({
-            url: homeUrl + "stock/delete",
+            url: homeUrl + "delete",
             type: 'get',
             async: true,
             data: {
@@ -264,7 +276,7 @@
         }
         
         $.ajax({
-            url: homeUrl + "stock/addStock",
+            url: homeUrl + "addStock",
             type: 'get',
             async: true,
             data: {
@@ -279,4 +291,38 @@
             }
         });
     }
+    
+    function updateColumn(tdObject, column){
+        var id = tdObject.attr("id");
+        var oldVal = tdObject.text();
+        console.log("id:"+id+", oldVal:"+oldVal);
+        var input = "<input type='text' style='width:100%' id='tmpId' value='" + oldVal + "' >";
+        tdObject.text('');
+        tdObject.append(input);
+        $('#tmpId').focus();
+        $('#tmpId').blur(function(){
+            var newVal = $(this).val();
+            if(newVal != oldVal){
+                oldVal = $(this).val();
+                // 调用后台逻辑修改
+                $.ajax({
+                    url: homeUrl + "update",
+                    type: 'get',
+                    async: true,
+                    data: {
+                        code:id,
+                        value:oldVal,
+                        column:column
+                    },
+                    dataType:'json',
+                    success: function (data) {
+                        alert("更新成功");
+                    }
+                });
+            }
+            //closest：是从当前元素开始，沿Dom树向上遍历直到找到已应用选择器的一个匹配为止。
+            $(this).closest('td').text(oldVal);
+        });
+    }
+    
 </script>

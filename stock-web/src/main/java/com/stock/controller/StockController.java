@@ -19,6 +19,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 import com.alibaba.fastjson.JSON;
 import com.stock.dataobject.StockInfo;
+import com.stock.enums.ColumnEnum;
 import com.stock.enums.StockTypeEnum;
 import com.stock.model.TbStock;
 import com.stock.service.SinaApiService;
@@ -26,7 +27,7 @@ import com.stock.service.StockService;
 import io.swagger.annotations.ApiOperation;
 
 @RestController
-@RequestMapping(value = "stock")
+@RequestMapping(value = "api")
 public class StockController {
 
 	private final Logger logger = LoggerFactory.getLogger(StockController.class);
@@ -73,7 +74,7 @@ public class StockController {
         }catch (Exception e){
         	logger.error("获取股票数据异常, 错误信息:{}", ExceptionUtils.getStackTrace(e));
         }
-        return new ModelAndView("/stock/index", "map", map);
+        return new ModelAndView("/index", "map", map);
     }
     
     //根据股票信息拼接股票代码字符串
@@ -173,9 +174,9 @@ public class StockController {
     
     @ApiOperation(value = "更新", httpMethod = "GET")
     @RequestMapping(value = "/update", method = RequestMethod.GET)
-    public void update(@RequestParam("tdIndex") String tdIndex, @RequestParam("code") String code, 
-    		@RequestParam("value") String value){
-    	stockService.update(tdIndex, code, value);
+    public void update(@RequestParam("column") String column, @RequestParam("code") String code, @RequestParam("value") String value) {
+    	logger.info("column:{}, code:{}, value:{}", column, code, value);
+    	stockService.update(column, code, value);
     }
     
     @ApiOperation(value = "删除", httpMethod = "GET")
@@ -198,7 +199,7 @@ public class StockController {
     @ApiOperation(value = "文件上传", httpMethod = "GET")
     @RequestMapping(value = "/uploadExcel", method = RequestMethod.GET)
     public ModelAndView uploadExcel() {
-    	return new ModelAndView("/stock/uploadExcel");
+    	return new ModelAndView("/uploadExcel");
     }
 	  
 }

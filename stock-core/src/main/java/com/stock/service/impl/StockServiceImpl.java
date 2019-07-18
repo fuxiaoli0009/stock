@@ -1,5 +1,6 @@
 package com.stock.service.impl;
 
+import com.stock.enums.ColumnEnum;
 import com.stock.enums.StockStatusEnum;
 import com.stock.enums.StockTypeEnum;
 import com.stock.enums.TableTdIndexEnum;
@@ -79,15 +80,16 @@ public class StockServiceImpl implements StockService, InitializingBean {
 		}
 	}
 	
-	public void update(String tdIndex, String code, String value){ 
+	public void update(String column, String code, String value){ 
 		try {
 			logger.info("code:{}, 数据更新.", code);
 			TbStock tbStock = this.selectTbStockByCode(code);
 			if(tbStock!=null) {
-				if(TableTdIndexEnum.TABLE_TD_BUYPRICE.getCode().equals(tdIndex)) {
-					tbStock.setBuyPrice(new BigDecimal(value));
-				}else if(TableTdIndexEnum.TABLE_TD_DESC.getCode().equals(tdIndex)) {
+				if(ColumnEnum.DESCRIPTION.getCode().equals(column)) { //更新描述
 					tbStock.setDescription(value);
+				}
+				if(ColumnEnum.BUYPRICE.getCode().equals(column)) {
+					tbStock.setBuyPrice(new BigDecimal(value));
 				}
 				tbStockMapper.updateByPrimaryKeySelective(tbStock);
 				logger.info("code:{}, 数据更新成功.", code);
