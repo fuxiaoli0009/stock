@@ -1,5 +1,8 @@
 package com.stock.dataobject;
 
+/**
+ * 远程数据封装模板类
+ */
 public class RemoteDataInfo {
 
 	public String code;
