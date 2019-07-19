@@ -52,13 +52,17 @@ private final Logger logger = LoggerFactory.getLogger(SinaApiService.class);
 			String[] responseArray = response.split(";");
 			Map<String, RemoteDataInfo> remoteDataInfoMap = new HashMap<String, RemoteDataInfo>();
 			for(int i=0; i< responseArray.length-1; i++) {
-				RemoteDataInfo remote = new RemoteDataInfo();
-				String[] strs = responseArray[i].split("~");
-				remote.setCode(strs[2]);
-				remote.setName(strs[1]);
-				remote.setRealTimePrice(Double.parseDouble(strs[3]));
-				remote.setRatePercent(strs[5]+"%");
-				remoteDataInfoMap.put(remote.getCode(), remote);
+				try {
+					RemoteDataInfo remote = new RemoteDataInfo();
+					String[] strs = responseArray[i].split("~");
+					remote.setCode(strs[2]);
+					remote.setName(strs[1]);
+					remote.setRealTimePrice(Double.parseDouble(strs[3]));
+					remote.setRatePercent(strs[5]+"%");
+					remoteDataInfoMap.put(remote.getCode(), remote);
+				} catch (Exception e) {
+					logger.error("数据:{},封装Tencent数据为通用模板异常", responseArray[i], e);
+				}
 			}
 			return remoteDataInfoMap;
 		}

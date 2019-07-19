@@ -50,40 +50,43 @@ public class SinaApiService {
 		if(response!=null && response.contains(";")) {
 			String[] responseArray = response.split("\n");
 			Map<String, RemoteDataInfo> remoteDataInfoMap = new HashMap<String, RemoteDataInfo>();
-			for(int i=0; i< responseArray.length-1; i++) {
+			for(int i=0; i< responseArray.length; i++) {
 				RemoteDataInfo remote = new RemoteDataInfo();
 				String[] datas = responseArray[i].split(",");  //每条数据
 				String[] market = datas[0].split("=\"");
 				String codeStr = market[0];
 				String code = "";
 				String name = "";
-				String realTimePrice = "";
-				Double yesterdayPrice = 0.0;//今日涨跌及百分比
+				Double realTimePrice = 0D;
+				Double yesterdayPrice = 0D;//今日涨跌及百分比
 				if(codeStr.contains(RemoteDataPrefixEnum.SINA_SH.getCode()) || codeStr.contains(RemoteDataPrefixEnum.SINA_SZ.getCode())) {
 					code = codeStr.substring(codeStr.length()-6, codeStr.length());
 					name = market[1];
-					realTimePrice = datas[3];
-					yesterdayPrice = datas[2].startsWith("0.0")?Double.parseDouble(realTimePrice):Double.parseDouble(datas[2]);//昨天收盘价
+					realTimePrice = Double.parseDouble(datas[3]);
+					yesterdayPrice = datas[2].startsWith("0.0")?realTimePrice:Double.parseDouble(datas[2]);//昨天收盘价
 				}
 				if(codeStr.contains(RemoteDataPrefixEnum.SINA_HK.getCode())) {
 					code = codeStr.substring(codeStr.length()-5, codeStr.length());
 					name = datas[1];
-					realTimePrice = datas[2];
-					yesterdayPrice = datas[3].startsWith("0.00")?Double.parseDouble(realTimePrice):Double.parseDouble(datas[3]);
+					realTimePrice = Double.parseDouble(datas[2]);
+					yesterdayPrice = datas[3].startsWith("0.00")?realTimePrice:Double.parseDouble(datas[3]);
 				}
-				
-				BigDecimal b1 = new BigDecimal(realTimePrice).subtract(new BigDecimal(Double.toString(yesterdayPrice)));  
-				BigDecimal b2 = new BigDecimal(Double.toString(yesterdayPrice));
-				Double rate = b1.divide(b2, 4, BigDecimal.ROUND_HALF_UP).doubleValue();
-				NumberFormat nf = NumberFormat.getPercentInstance();
-				nf.setMaximumIntegerDigits(2); //小数点前保留几位
-				nf.setMinimumFractionDigits(2);//小数点后保留几位
-				
 				remote.setCode(code);
 				remote.setName(name);
-				remote.setRealTimePrice(Double.parseDouble(realTimePrice));
-				remote.setRatePercent(nf.format(rate));
-				logger.info(code+"-"+name+"-"+realTimePrice+"-"+nf.format(rate));
+				remote.setRealTimePrice(realTimePrice);
+				if(realTimePrice!=0 && yesterdayPrice!=0) {
+					BigDecimal b1 = new BigDecimal(realTimePrice).subtract(new BigDecimal(Double.toString(yesterdayPrice)));  
+					BigDecimal b2 = new BigDecimal(Double.toString(yesterdayPrice));
+					Double rate = b1.divide(b2, 4, BigDecimal.ROUND_HALF_UP).doubleValue();
+					NumberFormat nf = NumberFormat.getPercentInstance();
+					nf.setMaximumIntegerDigits(2); //小数点前保留几位
+					nf.setMinimumFractionDigits(2);//小数点后保留几位
+					remote.setRatePercent(nf.format(rate));
+				} else {
+					remote.setRatePercent("0.00%");
+				}
+				
+				logger.info(code+"-"+name+"-"+realTimePrice+"-"+remote.getRatePercent());
 				remoteDataInfoMap.put(remote.getCode(), remote);
 			}
 			return remoteDataInfoMap;

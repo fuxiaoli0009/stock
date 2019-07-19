@@ -44,13 +44,13 @@ public class RemoteDataServiceImpl implements RemoteDataService {
 				if(remote!=null) {
 					stockInfo.setName(remote.getName());
 					//实时价格
-					realTimePrice = remote.getRealTimePrice();
+					realTimePrice = remote.getRealTimePrice()==0D?100D:remote.getRealTimePrice();
 					stockInfo.setRealTimePrice(realTimePrice);
 					stockInfo.setRatePercent(remote.getRatePercent());
 				}else {
 					logger.info("code:{}, 远程数据对象为空", code);
 				}
-				Double buyPrice = tbStock.getBuyPrice()==null?0.5:tbStock.getBuyPrice().doubleValue();
+				Double buyPrice = tbStock.getBuyPrice()==null?0.5D:tbStock.getBuyPrice().doubleValue();
 				stockInfo.setBuyPrice(buyPrice);
 				//买入还差百分之几
 				NumberFormat nf = NumberFormat.getPercentInstance();
@@ -61,7 +61,7 @@ public class RemoteDataServiceImpl implements RemoteDataService {
 				stockInfo.setBuyRateDouble(buyRate);
 				stockInfo.setBuyRate(nf.format(buyRate));
 				//最高点已跌百分比
-				Double maxValue = tbStock.getMaxValue()==null?200.0:tbStock.getMaxValue().doubleValue();
+				Double maxValue = tbStock.getMaxValue()==null?200D:tbStock.getMaxValue().doubleValue();
 				b1 = new BigDecimal(Double.toString(maxValue - realTimePrice));
 				b2 = new BigDecimal(Double.toString(maxValue));
 				Double maxRate = b1.divide(b2, 4, BigDecimal.ROUND_HALF_UP).doubleValue();
