@@ -79,7 +79,7 @@ public class SinaApiService {
 					BigDecimal b2 = new BigDecimal(Double.toString(yesterdayPrice));
 					Double rate = b1.divide(b2, 4, BigDecimal.ROUND_HALF_UP).doubleValue();
 					NumberFormat nf = NumberFormat.getPercentInstance();
-					nf.setMaximumIntegerDigits(2); //小数点前保留几位
+					nf.setMaximumIntegerDigits(4); //小数点前保留几位
 					nf.setMinimumFractionDigits(2);//小数点后保留几位
 					remote.setRatePercent(nf.format(rate));
 				} else {

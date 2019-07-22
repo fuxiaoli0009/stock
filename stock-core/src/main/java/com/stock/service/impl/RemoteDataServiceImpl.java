@@ -8,11 +8,15 @@ import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.stock.dataobject.RemoteDataInfo;
 import com.stock.dataobject.StockInfo;
 import com.stock.model.TbStock;
 import com.stock.service.RemoteDataService;
+import com.stock.service.SinaApiService;
+import com.stock.service.StockService;
+import com.stock.service.TencentApiService;
 
 @Service
 public class RemoteDataServiceImpl implements RemoteDataService {
@@ -20,6 +24,52 @@ public class RemoteDataServiceImpl implements RemoteDataService {
 	private static final Logger logger = LoggerFactory.getLogger(RemoteDataServiceImpl.class);
 	
 	private final static String PBPEUrl = "https://www.jisilu.cn/data/stock/";
+	
+	@Autowired
+	private TencentApiService tencentApiService;
+	
+	@Autowired
+	private SinaApiService sinaApiService;
+	
+	@Autowired
+	private StockService stockService;
+	
+	public List<StockInfo> findStocksByType(String type, String source) {
+    	List<TbStock> tbStocks = stockService.getStocksByType(type);
+    	Map<String, RemoteDataInfo> remoteDataInfoMap = this.findRemoteDataInfoMap(type, source, tbStocks);
+    	return this.assembleDatas(remoteDataInfoMap, tbStocks, type);
+	}
+    
+	public Map<String, RemoteDataInfo> findRemoteDataInfoMap(String type, String source, List<TbStock> tbStocks) {
+    	//获取不通渠道数据
+    	if("1".equals(source)) {
+    		return this.tencentSource(tbStocks, type);
+    	} else {
+    		return this.sinaSource(tbStocks, type);
+    	}
+	}
+    
+    /**
+     * 获取Tencent模板数据
+     * @param tbStocks
+     * @param type
+     * @return
+     */
+	public Map<String, RemoteDataInfo> tencentSource(List<TbStock> tbStocks, String type) {
+		String codes = tencentApiService.getCodesFromStocks(tbStocks, type);
+		return tencentApiService.getRealTimeInfoFromRemote(codes);
+    }
+	
+	/**
+     * 获取Sina模板数据
+     * @param tbStocks
+     * @param type
+     * @return
+     */
+	public Map<String, RemoteDataInfo> sinaSource(List<TbStock> tbStocks, String type) {
+		String codes = sinaApiService.getCodesFromStocks(tbStocks, type);
+		return sinaApiService.getRealTimeInfoFromRemote(codes);
+    }
 	
 	/**
 	 * 通用方法：将模板数据封装为前端展示数据
