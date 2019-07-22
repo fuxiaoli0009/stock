@@ -53,7 +53,7 @@
         </javaClientGenerator>
 
         <!-- -->
-        <table tableName="tb_stock"
+        <table tableName="tb_history_data"
                enableCountByExample="true"
                enableUpdateByExample="true"
                enableDeleteByExample="true"

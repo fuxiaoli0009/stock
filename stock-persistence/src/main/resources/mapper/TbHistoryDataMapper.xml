@@ -1,0 +1,371 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.stock.repository.TbHistoryDataMapper">
+  <resultMap id="BaseResultMap" type="com.stock.model.TbHistoryData">
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="code" jdbcType="VARCHAR" property="code" />
+    <result column="name" jdbcType="VARCHAR" property="name" />
+    <result column="close_date" jdbcType="VARCHAR" property="closeDate" />
+    <result column="close_price" jdbcType="DECIMAL" property="closePrice" />
+    <result column="close_rate_Percent" jdbcType="VARCHAR" property="closeRatePercent" />
+    <result column="close_pb" jdbcType="DECIMAL" property="closePb" />
+    <result column="close_pe" jdbcType="DECIMAL" property="closePe" />
+    <result column="close_ps" jdbcType="DECIMAL" property="closePs" />
+    <result column="close_total_value" jdbcType="DECIMAL" property="closeTotalValue" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+    <result column="type" jdbcType="VARCHAR" property="type" />
+    <result column="flag" jdbcType="VARCHAR" property="flag" />
+    <result column="description" jdbcType="VARCHAR" property="description" />
+  </resultMap>
+  <sql id="Example_Where_Clause">
+    <where>
+      <foreach collection="oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause">
+    <where>
+      <foreach collection="example.oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List">
+    id, code, name, close_date, close_price, close_rate_Percent, close_pb, close_pe, 
+    close_ps, close_total_value, create_time, update_time, type, flag, description
+  </sql>
+  <select id="selectByExample" parameterType="com.stock.model.TbHistoryDataExample" resultMap="BaseResultMap">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    'true' as QUERYID,
+    <include refid="Base_Column_List" />
+    from tb_history_data
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from tb_history_data
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from tb_history_data
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <delete id="deleteByExample" parameterType="com.stock.model.TbHistoryDataExample">
+    delete from tb_history_data
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="com.stock.model.TbHistoryData">
+    insert into tb_history_data (id, code, name, 
+      close_date, close_price, close_rate_Percent, 
+      close_pb, close_pe, close_ps, 
+      close_total_value, create_time, update_time, 
+      type, flag, description
+      )
+    values (#{id,jdbcType=INTEGER}, #{code,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, 
+      #{closeDate,jdbcType=VARCHAR}, #{closePrice,jdbcType=DECIMAL}, #{closeRatePercent,jdbcType=VARCHAR}, 
+      #{closePb,jdbcType=DECIMAL}, #{closePe,jdbcType=DECIMAL}, #{closePs,jdbcType=DECIMAL}, 
+      #{closeTotalValue,jdbcType=DECIMAL}, #{createTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP}, 
+      #{type,jdbcType=VARCHAR}, #{flag,jdbcType=VARCHAR}, #{description,jdbcType=VARCHAR}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.stock.model.TbHistoryData">
+    insert into tb_history_data
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="code != null">
+        code,
+      </if>
+      <if test="name != null">
+        name,
+      </if>
+      <if test="closeDate != null">
+        close_date,
+      </if>
+      <if test="closePrice != null">
+        close_price,
+      </if>
+      <if test="closeRatePercent != null">
+        close_rate_Percent,
+      </if>
+      <if test="closePb != null">
+        close_pb,
+      </if>
+      <if test="closePe != null">
+        close_pe,
+      </if>
+      <if test="closePs != null">
+        close_ps,
+      </if>
+      <if test="closeTotalValue != null">
+        close_total_value,
+      </if>
+      <if test="createTime != null">
+        create_time,
+      </if>
+      <if test="updateTime != null">
+        update_time,
+      </if>
+      <if test="type != null">
+        type,
+      </if>
+      <if test="flag != null">
+        flag,
+      </if>
+      <if test="description != null">
+        description,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="code != null">
+        #{code,jdbcType=VARCHAR},
+      </if>
+      <if test="name != null">
+        #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="closeDate != null">
+        #{closeDate,jdbcType=VARCHAR},
+      </if>
+      <if test="closePrice != null">
+        #{closePrice,jdbcType=DECIMAL},
+      </if>
+      <if test="closeRatePercent != null">
+        #{closeRatePercent,jdbcType=VARCHAR},
+      </if>
+      <if test="closePb != null">
+        #{closePb,jdbcType=DECIMAL},
+      </if>
+      <if test="closePe != null">
+        #{closePe,jdbcType=DECIMAL},
+      </if>
+      <if test="closePs != null">
+        #{closePs,jdbcType=DECIMAL},
+      </if>
+      <if test="closeTotalValue != null">
+        #{closeTotalValue,jdbcType=DECIMAL},
+      </if>
+      <if test="createTime != null">
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateTime != null">
+        #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="type != null">
+        #{type,jdbcType=VARCHAR},
+      </if>
+      <if test="flag != null">
+        #{flag,jdbcType=VARCHAR},
+      </if>
+      <if test="description != null">
+        #{description,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.stock.model.TbHistoryDataExample" resultType="java.lang.Long">
+    select count(*) from tb_history_data
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map">
+    update tb_history_data
+    <set>
+      <if test="record.id != null">
+        id = #{record.id,jdbcType=INTEGER},
+      </if>
+      <if test="record.code != null">
+        code = #{record.code,jdbcType=VARCHAR},
+      </if>
+      <if test="record.name != null">
+        name = #{record.name,jdbcType=VARCHAR},
+      </if>
+      <if test="record.closeDate != null">
+        close_date = #{record.closeDate,jdbcType=VARCHAR},
+      </if>
+      <if test="record.closePrice != null">
+        close_price = #{record.closePrice,jdbcType=DECIMAL},
+      </if>
+      <if test="record.closeRatePercent != null">
+        close_rate_Percent = #{record.closeRatePercent,jdbcType=VARCHAR},
+      </if>
+      <if test="record.closePb != null">
+        close_pb = #{record.closePb,jdbcType=DECIMAL},
+      </if>
+      <if test="record.closePe != null">
+        close_pe = #{record.closePe,jdbcType=DECIMAL},
+      </if>
+      <if test="record.closePs != null">
+        close_ps = #{record.closePs,jdbcType=DECIMAL},
+      </if>
+      <if test="record.closeTotalValue != null">
+        close_total_value = #{record.closeTotalValue,jdbcType=DECIMAL},
+      </if>
+      <if test="record.createTime != null">
+        create_time = #{record.createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.updateTime != null">
+        update_time = #{record.updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.type != null">
+        type = #{record.type,jdbcType=VARCHAR},
+      </if>
+      <if test="record.flag != null">
+        flag = #{record.flag,jdbcType=VARCHAR},
+      </if>
+      <if test="record.description != null">
+        description = #{record.description,jdbcType=VARCHAR},
+      </if>
+    </set>
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map">
+    update tb_history_data
+    set id = #{record.id,jdbcType=INTEGER},
+      code = #{record.code,jdbcType=VARCHAR},
+      name = #{record.name,jdbcType=VARCHAR},
+      close_date = #{record.closeDate,jdbcType=VARCHAR},
+      close_price = #{record.closePrice,jdbcType=DECIMAL},
+      close_rate_Percent = #{record.closeRatePercent,jdbcType=VARCHAR},
+      close_pb = #{record.closePb,jdbcType=DECIMAL},
+      close_pe = #{record.closePe,jdbcType=DECIMAL},
+      close_ps = #{record.closePs,jdbcType=DECIMAL},
+      close_total_value = #{record.closeTotalValue,jdbcType=DECIMAL},
+      create_time = #{record.createTime,jdbcType=TIMESTAMP},
+      update_time = #{record.updateTime,jdbcType=TIMESTAMP},
+      type = #{record.type,jdbcType=VARCHAR},
+      flag = #{record.flag,jdbcType=VARCHAR},
+      description = #{record.description,jdbcType=VARCHAR}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.stock.model.TbHistoryData">
+    update tb_history_data
+    <set>
+      <if test="code != null">
+        code = #{code,jdbcType=VARCHAR},
+      </if>
+      <if test="name != null">
+        name = #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="closeDate != null">
+        close_date = #{closeDate,jdbcType=VARCHAR},
+      </if>
+      <if test="closePrice != null">
+        close_price = #{closePrice,jdbcType=DECIMAL},
+      </if>
+      <if test="closeRatePercent != null">
+        close_rate_Percent = #{closeRatePercent,jdbcType=VARCHAR},
+      </if>
+      <if test="closePb != null">
+        close_pb = #{closePb,jdbcType=DECIMAL},
+      </if>
+      <if test="closePe != null">
+        close_pe = #{closePe,jdbcType=DECIMAL},
+      </if>
+      <if test="closePs != null">
+        close_ps = #{closePs,jdbcType=DECIMAL},
+      </if>
+      <if test="closeTotalValue != null">
+        close_total_value = #{closeTotalValue,jdbcType=DECIMAL},
+      </if>
+      <if test="createTime != null">
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateTime != null">
+        update_time = #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="type != null">
+        type = #{type,jdbcType=VARCHAR},
+      </if>
+      <if test="flag != null">
+        flag = #{flag,jdbcType=VARCHAR},
+      </if>
+      <if test="description != null">
+        description = #{description,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.stock.model.TbHistoryData">
+    update tb_history_data
+    set code = #{code,jdbcType=VARCHAR},
+      name = #{name,jdbcType=VARCHAR},
+      close_date = #{closeDate,jdbcType=VARCHAR},
+      close_price = #{closePrice,jdbcType=DECIMAL},
+      close_rate_Percent = #{closeRatePercent,jdbcType=VARCHAR},
+      close_pb = #{closePb,jdbcType=DECIMAL},
+      close_pe = #{closePe,jdbcType=DECIMAL},
+      close_ps = #{closePs,jdbcType=DECIMAL},
+      close_total_value = #{closeTotalValue,jdbcType=DECIMAL},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      update_time = #{updateTime,jdbcType=TIMESTAMP},
+      type = #{type,jdbcType=VARCHAR},
+      flag = #{flag,jdbcType=VARCHAR},
+      description = #{description,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>

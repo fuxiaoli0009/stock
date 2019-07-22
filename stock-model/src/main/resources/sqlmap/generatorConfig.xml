@@ -40,8 +40,18 @@
             <property name="enableSubPackages" value="true"/>
             <property name="trimStrings" value="false"/>
         </javaModelGenerator>
+        
+        <!-- sql mapper 隐射配置文件 -->
+        <sqlMapGenerator targetPackage="mapper" targetProject="src/main/resources">
+            <property name="trimStrings" value="true"/>
+        </sqlMapGenerator>
 
-        <table tableName="tb_stock"
+        <!-- 在ibatis2 中是dao层，但在mybatis3中，其实就是mapper接口 -->
+        <javaClientGenerator type="XMLMAPPER" targetPackage="com.stock.repository" targetProject="src/main/java">
+            <property name="enableSubPackages" value="true"/>
+        </javaClientGenerator>
+
+        <table tableName="tb_history_data"
                enableCountByExample="true"
                enableUpdateByExample="true"
                enableDeleteByExample="true"
