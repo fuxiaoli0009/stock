@@ -5,10 +5,9 @@
     <link href="https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css"  rel="stylesheet" >
     <script src="https://cdn.bootcss.com/jquery/2.1.1/jquery.min.js"></script>
     <script src="https://cdn.bootcss.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
-    <script src="home.js"></script>
 </head>
 <body>
-
+<h5>自选：${hsAverageRatePercent}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;科创：${starAverageRatePercent}</h5>
 <ul class="nav nav-tabs">
     <li class="active"><a href="#hs" data-toggle="tab">主页</a></li>
     <li><a href="#starStock" data-toggle="tab">科创</a></li>
@@ -28,7 +27,6 @@
                 <th width="4%">期望</th>
                 <th width="12%">买入差（最大跌）</th>
                 <th width="4%">PB/PE</th>
-                <!-- <th width="49%">备注</th> -->
                 <th width="6%">操作</th>
             </tr>
             </thead>
@@ -43,7 +41,7 @@
 			<#else>
 			<tr id='${stock.code}'>
 			</#if>
-                <td>${stock_index+1}</td>
+                <td>&nbsp;</td>
                 <td>${stock.code} ${stock.name}</td>
                 <td>${stock.realTimePrice}</td>
                 <td>${stock.ratePercent}</td>
@@ -61,7 +59,7 @@
 			<#else>
 			<tr id='${stock.code}'>
 			</#if>
-                <td id='${stock.code}' colspan="8" ondblclick="updateColumn($(this), 'description')"><small><small>&nbsp;&nbsp;${stock.description}</small></small></td>
+                <td id='${stock.code}' colspan="8" ondblclick="updateColumn($(this), 'description')">&nbsp;&nbsp;${stock.description}</td>
             </tr>
             </#list>
             </tbody>
@@ -73,14 +71,13 @@
         <table id="tableId" class="table table-condensed table-striped table-hover">
             <thead>
             <tr class="success">
-                <th width="2%"></th>
+            	<th width="2%"></th>
                 <th width="15%">股票</th>
                 <th width="4%">最新</th>
                 <th width="4%">涨跌</th>
                 <th width="4%">期望</th>
                 <th width="12%">买入差（最大跌）</th>
                 <th width="4%">PB/PE</th>
-                <th width="49%">备注</th>
                 <th width="6%">操作</th>
             </tr>
             </thead>
@@ -95,15 +92,25 @@
 			<#else>
 			<tr id='${stock.code}'>
 			</#if>
-                <td>${stock_index+1}</td>
+				<td>&nbsp;</td>
                 <td>${stock.code} ${stock.name}</td>
                 <td>${stock.realTimePrice}</td>
                 <td>${stock.ratePercent}</td>
-                <td>${stock.buyPrice}</td>
+                <td id='${stock.code}' ondblclick="updateColumn($(this), 'buyprice')">${stock.buyPrice}</td>
                 <td>${stock.buyRate}（${stock.maxRate}）</td>
                 <td><small><small><a href="${stock.PBPEUrl}" target="_blank">PE/PB</a></small></small></td>
-                <td><small><small>${stock.description}</small></small></td>
                 <td><small><small><button type="button" class="btn btn-primary btn-xs" onclick="deleteStock('${stock.code}')">删除</button></small></small></td>
+            </tr>
+            <#if stock.buyRateDouble<0>
+            <tr id='${stock.code}' class='danger'>
+			<#elseif (stock.buyRateDouble>=0 && stock.buyRateDouble<0.05)>
+			<tr id='${stock.code}' class='warning'>
+			<#elseif (stock.buyRateDouble>=0.05 && stock.buyRateDouble<0.1)>
+			<tr id='${stock.code}' class='info'>
+			<#else>
+			<tr id='${stock.code}'>
+			</#if>
+                <td id='${stock.code}' colspan="8" ondblclick="updateColumn($(this), 'description')">&nbsp;&nbsp;${stock.description}</td>
             </tr>
             </#list>
             </tbody>
@@ -115,13 +122,13 @@
         <table id="tableId" class="table table-condensed table-striped table-hover">
             <thead>
             <tr class="success">
-                <th width="2%"></th>
-                <th width="26%">股票</th>
+            	<th width="2%"></th>
+                <th width="15%">股票</th>
                 <th width="4%">最新</th>
                 <th width="4%">涨跌</th>
                 <th width="4%">期望</th>
-                <th width="10%">买入差（最大跌）</th>
-                <th width="44%">备注</th>
+                <th width="12%">买入差（最大跌）</th>
+                <th width="4%">PB/PE</th>
                 <th width="6%">操作</th>
             </tr>
             </thead>
@@ -136,14 +143,25 @@
 			<#else>
 			<tr id='${stock.code}'>
 			</#if>
-                <td>${stock_index+1}</td>
+				<td>&nbsp;</td>
                 <td>${stock.code} ${stock.name}</td>
                 <td>${stock.realTimePrice}</td>
                 <td>${stock.ratePercent}</td>
-                <td>${stock.buyPrice}</td>
+                <td id='${stock.code}' ondblclick="updateColumn($(this), 'buyprice')">${stock.buyPrice}</td>
                 <td>${stock.buyRate}（${stock.maxRate}）</td>
-                <td><small><small>${stock.description}</small></small></td>
+                <td><small><small><a href="${stock.PBPEUrl}" target="_blank">PE/PB</a></small></small></td>
                 <td><small><small><button type="button" class="btn btn-primary btn-xs" onclick="deleteStock('${stock.code}')">删除</button></small></small></td>
+            </tr>
+            <#if stock.buyRateDouble<0>
+            <tr id='${stock.code}' class='danger'>
+			<#elseif (stock.buyRateDouble>=0 && stock.buyRateDouble<0.05)>
+			<tr id='${stock.code}' class='warning'>
+			<#elseif (stock.buyRateDouble>=0.05 && stock.buyRateDouble<0.1)>
+			<tr id='${stock.code}' class='info'>
+			<#else>
+			<tr id='${stock.code}'>
+			</#if>
+                <td id='${stock.code}' colspan="8" ondblclick="updateColumn($(this), 'description')">&nbsp;&nbsp;${stock.description}</td>
             </tr>
             </#list>
             </tbody>
@@ -151,37 +169,11 @@
     </div>
 
     <div class="tab-pane" id="addStock">
-        <form class="form-horizontal" role="form">
-            <div class="form-group">
-                <label for="stockCode" class="col-sm-2 control-label">代码</label>
-                <div class="col-sm-8">
-                    <input type="text" class="form-control" id="stockCode" name="stockCode" placeholder="">
-                </div>
-            </div>
-            <div class="form-group">
-                <label for="stockName" class="col-sm-2 control-label">名称</label>
-                <div class="col-sm-8">
-                    <input type="text" class="form-control" id="stockName" name="stockName" placeholder="">
-                </div>
-            </div>
-            <div class="form-group">
-                <label for="maxPrice" class="col-sm-2 control-label">最高价格</label>
-                <div class="col-sm-8">
-                    <input type="text" class="form-control" id="maxPrice" name="maxPrice" placeholder="">
-                </div>
-            </div>
-            <div class="form-group">
-                <label for="buyPrice" class="col-sm-2 control-label">买入价格</label>
-                <div class="col-sm-8">
-                    <input type="text" class="form-control" id="buyPrice" name="buyPrice" placeholder="">
-                </div>
-            </div>
-            <div class="form-group">
-                <div class="col-sm-offset-2 col-sm-8">
-                    <button type="button" class="btn btn-default" onclick="addStock()">保存</button>
-                </div>
-            </div>
-        </form>
+        <form method="post" enctype="multipart/form-data" id="form" action="http://118.24.211.79:8081/excel/parse">
+		    <input type="file" name="filename"/>
+		    <input type="submit" value="提交上传"/>
+		</form>
+		格式：type、code、name、maxValue
     </div>
 </div>
 <div>
@@ -190,108 +182,8 @@
 </body>
 </html>
 <script>
-    //var homeUrl = "http://39.105.142.63:8080/api/";
-    var homeUrl = "http://127.0.0.1:8080/api/";
-    /* $(function(){
-        $('#totalId').on('dblclick','td',function(){
-            var tdIndex = $(this).index();        //获取td索引
-            var id = $(this).parent().attr("id");
-            var oldVal = $(this).text();
-            var input = "<input type='text' style='width:100px' id='tmpId' value='" + oldVal + "' >";
-            $(this).text('');
-            $(this).append(input);
-            $('#tmpId').focus();
-            $('#tmpId').blur(function(){
-                var newVal = $(this).val();
-                if(newVal != oldVal){
-                    oldVal = $(this).val();
-                    // 调用后台逻辑修改
-                    $.ajax({
-                        url: homeUrl + "stock/update",
-                        type: 'get',
-                        async: true,
-                        data: {
-                            code:id,
-                            value:oldVal,
-                            tdIndex:tdIndex
-                        },
-                        dataType:'json',
-                        success: function (data) {
-                            alert("更新成功");
-                        }
-                    });
-                }
-                //closest：是从当前元素开始，沿Dom树向上遍历直到找到已应用选择器的一个匹配为止。
-                $(this).closest('td').text(oldVal);
-            });
-        });
-    }); */
-    
-    function deleteStock(code){
-        var statu = confirm("确认删除【"+code+"】"+"?");
-        if(!statu){
-            return false;
-        }
-        $.ajax({
-            url: homeUrl + "delete",
-            type: 'get',
-            async: true,
-            data: {
-                code:code
-            },
-            dataType:'json',
-            success: function (data) {
-                console.log(data);
-            }
-        });
-    }
-    function addStock(){
-        var stockCode = $("#stockCode").val();
-        if(stockCode==""){
-            alert("代码不能为空");
-            return false;
-        }
-        
-        var stockName = $("#stockName").val();
-        if(stockName==""){
-            alert("名称不能为空");
-            return false;
-        }
-        
-        var maxPrice = $("#maxPrice").val();
-        if(maxPrice==""){
-            alert("最高价格不能为空");
-            return false;
-        }
-        
-        var buyPrice = $("#buyPrice").val();
-        if(buyPrice==""){
-            alert("期待买入价格不能为空");
-            return false;
-        }
-        
-        var statu = confirm("确认提交？");
-        if(!statu){
-            return false;
-        }
-        
-        $.ajax({
-            url: homeUrl + "addStock",
-            type: 'get',
-            async: true,
-            data: {
-                code:stockCode,
-                name:stockName,
-                maxPrice:maxPrice,
-                buyPrice:buyPrice
-            },
-            dataType:'json',
-            success: function (data) {
-                console.log(data);
-            }
-        });
-    }
-    
+    var homeUrl = "http://39.105.142.63:8080/api/";
+    //本地测试 var homeUrl = "http://127.0.0.1:8080/api/";
     function updateColumn(tdObject, column){
         var id = tdObject.attr("id");
         var oldVal = tdObject.text();
@@ -322,6 +214,25 @@
             }
             //closest：是从当前元素开始，沿Dom树向上遍历直到找到已应用选择器的一个匹配为止。
             $(this).closest('td').text(oldVal);
+        });
+    }
+    
+    function deleteStock(code){
+        var statu = confirm("确认删除【"+code+"】"+"?");
+        if(!statu){
+            return false;
+        }
+        $.ajax({
+            url: homeUrl + "delete",
+            type: 'get',
+            async: true,
+            data: {
+                code:code
+            },
+            dataType:'json',
+            success: function (data) {
+                console.log(data);
+            }
         });
     }
     

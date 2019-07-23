@@ -14,7 +14,7 @@ import com.stock.service.StockService;
 import io.swagger.annotations.ApiOperation;
 
 @RestController
-@RequestMapping(value = "app")
+@RequestMapping(value = "api")
 public class StockController {
 
 	private final Logger logger = LoggerFactory.getLogger(StockController.class);

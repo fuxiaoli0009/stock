@@ -1,5 +1,9 @@
 package com.stock.controller;
 
+import java.math.BigDecimal;
+import java.text.NumberFormat;
+import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -45,4 +49,25 @@ public class TestController {
 		}
 	}
 	
+	public static void main(String[] args) {
+		
+		List<String> list = new ArrayList<String>();
+		list.add("2.73%");
+		list.add("3.74%");
+		list.add("4.03%");
+		list.add("1.73%");
+		
+		BigDecimal sum = new BigDecimal(0);
+		int staticNums = 0;
+		for(int i=0; i<list.size(); i++) {
+			if(list.get(i).contains("%")) {
+				sum = sum.add(new BigDecimal(list.get(i).replace("%", "")));
+				staticNums++;
+			}
+		}	
+		if(staticNums > 0) {
+			BigDecimal result = sum.divide(new BigDecimal(staticNums), 3,BigDecimal.ROUND_HALF_DOWN);
+			System.out.println(result.toString()+"");
+		}	
+	}
 }
