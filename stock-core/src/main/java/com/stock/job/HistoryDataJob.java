@@ -37,7 +37,7 @@ public class HistoryDataJob {
 	@Autowired
 	private TbHistoryDataMapper tbHistoryDataMapper;
 
-	@Scheduled(cron = "* * 17 * * ?")
+	@Scheduled(cron = "0 0 17 * * ?")
 	public void saveCloseDataInfo() {
 		
 		String type = StockTypeEnum.STOCK_STAR.getCode();
