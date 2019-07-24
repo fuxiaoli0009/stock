@@ -2,6 +2,7 @@ package com.stock.controller;
 
 import java.math.BigDecimal;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -12,6 +13,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
+
+import com.alibaba.fastjson.JSON;
 import com.stock.dataobject.StockInfo;
 import com.stock.enums.StockTypeEnum;
 import com.stock.service.impl.RemoteDataServiceImpl;
@@ -69,6 +72,26 @@ public class IndexController {
 		return "0";
 	}
     
-    
+	@ApiOperation(value = "方式二", httpMethod = "POST")
+    @RequestMapping(value = "/indexNew", method = RequestMethod.POST)
+    public String indexNew(String source){
+    	
+    	List<StockInfo> hsViewStocks = remoteDataService.findStocksByType(StockTypeEnum.STOCK_STATUS_HS.getCode(), source);
+    	List<StockInfo> hkViewStocks = remoteDataService.findStocksByType(StockTypeEnum.STOCK_STATUS_HK.getCode(), source);
+    	List<StockInfo> starViewStocks = remoteDataService.findStocksByType(StockTypeEnum.STOCK_STAR.getCode(), source);
+    	Collections.sort(hsViewStocks);
+    	Collections.sort(hkViewStocks);
+    	Collections.sort(starViewStocks);
+    	
+    	String hsAverageRatePercent = calculateAverageRatePercent(hsViewStocks);
+    	String starAverageRatePercent = calculateAverageRatePercent(starViewStocks);
+    	Map<String, Object> map = new HashMap<String, Object>();
+    	map.put("hsStocks", hsViewStocks);
+    	map.put("hkStocks", hkViewStocks);
+        map.put("starStocks", starViewStocks);
+        map.put("hsAverageRatePercent", hsAverageRatePercent);
+        map.put("starAverageRatePercent", starAverageRatePercent);
+    	return JSON.toJSONString(map);
+    }
     
 }

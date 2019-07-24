@@ -8,6 +8,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
@@ -22,7 +24,7 @@ import com.stock.service.TencentApiService;
 import com.stock.service.impl.RemoteDataServiceImpl;
 
 @RestController
-@RequestMapping(value="test")
+@RequestMapping(value="api")
 public class TestController {
 	
 	@Autowired
@@ -49,25 +51,9 @@ public class TestController {
 		}
 	}
 	
-	public static void main(String[] args) {
-		
-		List<String> list = new ArrayList<String>();
-		list.add("2.73%");
-		list.add("3.74%");
-		list.add("4.03%");
-		list.add("1.73%");
-		
-		BigDecimal sum = new BigDecimal(0);
-		int staticNums = 0;
-		for(int i=0; i<list.size(); i++) {
-			if(list.get(i).contains("%")) {
-				sum = sum.add(new BigDecimal(list.get(i).replace("%", "")));
-				staticNums++;
-			}
-		}	
-		if(staticNums > 0) {
-			BigDecimal result = sum.divide(new BigDecimal(staticNums), 3,BigDecimal.ROUND_HALF_DOWN);
-			System.out.println(result.toString()+"");
-		}	
-	}
+	@RequestMapping(value = "/test", method = RequestMethod.POST)
+	  public String index(String code) {
+		System.out.println(code);
+	    return "index";
+	  }
 }
