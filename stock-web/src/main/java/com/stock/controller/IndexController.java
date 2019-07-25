@@ -1,6 +1,7 @@
 package com.stock.controller;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -15,8 +16,10 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.alibaba.fastjson.JSON;
+import com.stock.dataobject.RemoteDataInfo;
 import com.stock.dataobject.StockInfo;
 import com.stock.enums.StockTypeEnum;
+import com.stock.model.TbStock;
 import com.stock.service.impl.RemoteDataServiceImpl;
 
 import io.swagger.annotations.ApiOperation;
@@ -34,6 +37,13 @@ public class IndexController {
     @RequestMapping(value = "/index", method = RequestMethod.GET)
     public ModelAndView index(Map<String, Object> map, String source){
     	
+    	//上证指数 start
+    	String code = "000001";
+    	Map<String, RemoteDataInfo> remoteMap = remoteDataService.findSpecialDataInfoMap(source, code);
+    	RemoteDataInfo remote = remoteMap.get(code);
+    	String szRatePercent = remote.getRatePercent();
+    	//上证指数 end
+    	
     	List<StockInfo> hsViewStocks = remoteDataService.findStocksByType(StockTypeEnum.STOCK_STATUS_HS.getCode(), source);
     	List<StockInfo> hkViewStocks = remoteDataService.findStocksByType(StockTypeEnum.STOCK_STATUS_HK.getCode(), source);
     	List<StockInfo> starViewStocks = remoteDataService.findStocksByType(StockTypeEnum.STOCK_STAR.getCode(), source);
@@ -48,6 +58,7 @@ public class IndexController {
         map.put("starStocks", starViewStocks);
         map.put("hsAverageRatePercent", hsAverageRatePercent);
         map.put("starAverageRatePercent", starAverageRatePercent);
+        map.put("szRatePercent", szRatePercent);
     	return new ModelAndView("/index", "map", map);
     }
 
@@ -75,6 +86,13 @@ public class IndexController {
 	@ApiOperation(value = "方式二", httpMethod = "POST")
     @RequestMapping(value = "/indexNew", method = RequestMethod.POST)
     public String indexNew(String source){
+		
+		//上证指数 start
+    	String code = "000001";
+    	Map<String, RemoteDataInfo> remoteMap = remoteDataService.findSpecialDataInfoMap(source, code);
+    	RemoteDataInfo remote = remoteMap.get(code);
+    	String szRatePercent = remote.getRatePercent();
+    	//上证指数 end
     	
     	List<StockInfo> hsViewStocks = remoteDataService.findStocksByType(StockTypeEnum.STOCK_STATUS_HS.getCode(), source);
     	List<StockInfo> hkViewStocks = remoteDataService.findStocksByType(StockTypeEnum.STOCK_STATUS_HK.getCode(), source);
@@ -91,6 +109,7 @@ public class IndexController {
         map.put("starStocks", starViewStocks);
         map.put("hsAverageRatePercent", hsAverageRatePercent);
         map.put("starAverageRatePercent", starAverageRatePercent);
+        map.put("szRatePercent", szRatePercent);
     	return JSON.toJSONString(map);
     }
     

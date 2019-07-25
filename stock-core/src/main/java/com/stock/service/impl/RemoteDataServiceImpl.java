@@ -39,7 +39,7 @@ public class RemoteDataServiceImpl implements RemoteDataService {
     	Map<String, RemoteDataInfo> remoteDataInfoMap = this.findRemoteDataInfoMap(type, source, tbStocks);
     	return this.assembleDatas(remoteDataInfoMap, tbStocks, type);
 	}
-    
+	
 	public Map<String, RemoteDataInfo> findRemoteDataInfoMap(String type, String source, List<TbStock> tbStocks) {
     	//获取不通渠道数据
     	if("1".equals(source)) {
@@ -48,7 +48,7 @@ public class RemoteDataServiceImpl implements RemoteDataService {
     		return this.sinaSource(tbStocks, type);
     	}
 	}
-    
+	
     /**
      * 获取Tencent模板数据
      * @param tbStocks
@@ -125,5 +125,15 @@ public class RemoteDataServiceImpl implements RemoteDataService {
 		}
 		return viewList;
 	}
+	
+	//000001有两个：上证指数和平安银行
+	public Map<String, RemoteDataInfo> findSpecialDataInfoMap(String source, String code){
+		if("1".equals(source)) {
+    		return tencentApiService.getRealTimeInfoFromRemote("s_sh" + code);
+    	} else {
+    		return sinaApiService.getRealTimeInfoFromRemote("sh" + code);
+    	}
+	}
+
 	
 }

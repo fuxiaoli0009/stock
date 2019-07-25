@@ -5,7 +5,7 @@
 
 	<groupId>com.stock</groupId>
 	<artifactId>stock</artifactId>
-	<version>0.0.3-SNAPSHOT</version>
+	<version>0.0.4-SNAPSHOT</version>
 	<modules>
 		<module>stock-web</module>
 		<module>stock-persistence</module>
