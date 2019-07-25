@@ -13,4 +13,5 @@ public interface RemoteDataService {
 	
 	public List<StockInfo> assembleDatas(Map<String, RemoteDataInfo> remoteDataInfoMap, List<TbStock> tbStocks, String typeCode);
 	
+	public String calculateAverageRatePercent(List<StockInfo> stocks);
 }

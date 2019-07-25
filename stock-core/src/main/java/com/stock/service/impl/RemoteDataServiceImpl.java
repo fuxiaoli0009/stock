@@ -135,5 +135,23 @@ public class RemoteDataServiceImpl implements RemoteDataService {
     	}
 	}
 
+	public String calculateAverageRatePercent(List<StockInfo> stocks) {
+		if(stocks!=null && stocks.size()>0) {
+			BigDecimal sum = new BigDecimal(0);
+			int staticNums = 0;
+			for(int i=0; i<stocks.size(); i++) {
+				if(stocks.get(i).getRatePercent().contains("%")) {
+					sum = sum.add(new BigDecimal(stocks.get(i).getRatePercent().replace("%", "")));
+					staticNums++;
+				}
+			}	
+			if(staticNums > 0) {
+				BigDecimal result = sum.divide(new BigDecimal(staticNums),3,BigDecimal.ROUND_HALF_DOWN);
+				logger.info("sum:{}, staticNums:{}, result:{}", sum, staticNums, result.toString()+"%");
+				return result.toString()+"%";
+			}
+		}
+		return "0";
+	}
 	
 }
