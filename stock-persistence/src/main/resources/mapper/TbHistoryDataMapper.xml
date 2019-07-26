@@ -230,9 +230,23 @@
   </select>
   
   <select id = "getCloseIndexsByCode" parameterType="string" resultType="java.lang.Integer">
-  	select close_price
-  	from tb_history_data
-  	where code = #{code,jdbcType=VARCHAR} order by close_date desc limit 20
+  	SELECT
+	close_price
+	FROM
+	(
+		SELECT
+			close_price,
+			create_time
+		FROM
+			tb_history_data
+		WHERE
+			CODE = #{code,jdbcType=VARCHAR}
+		ORDER BY
+			create_time DESC
+		LIMIT 5
+	) t
+	ORDER BY
+	create_time ASC
   </select>
   
   <update id="updateByExampleSelective" parameterType="map">
