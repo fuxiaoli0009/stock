@@ -100,5 +100,21 @@ private final Logger logger = LoggerFactory.getLogger(SinaApiService.class);
     	}
         return null;
 	}
+
+	/**
+	 * 组装上海指数前缀
+	 * @param codes
+	 * @param type
+	 * @return
+	 */
+	public String getCodesFromSHZSCodes(List<String> codes, String type) {
+		StringBuffer sb = new StringBuffer();
+		for(String code : codes) {
+			sb.append("s_sh");
+			sb.append(code);
+			sb.append(",");
+		}
+		return sb.toString().substring(0, sb.length()-1);
+	}
 	
 }

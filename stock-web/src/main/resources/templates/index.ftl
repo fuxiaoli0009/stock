@@ -7,7 +7,7 @@
     <script src="https://cdn.bootcss.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
 </head>
 <body>
-<h5>自选：${hsAverageRatePercent}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;科创：${starAverageRatePercent}</h5>
+<h5>上证：${szRatePercent}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;科创：${starAverageRatePercent}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;自选：${hsAverageRatePercent}</h5>
 <ul class="nav nav-tabs">
     <li class="active"><a href="#hs" data-toggle="tab">主页</a></li>
     <li><a href="#starStock" data-toggle="tab">科创</a></li>

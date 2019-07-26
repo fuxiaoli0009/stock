@@ -1,7 +1,5 @@
 package com.stock.service;
 
-import com.stock.dataobject.RemoteDataInfo;
-import com.stock.dataobject.StockInfo;
 import com.stock.model.TbStock;
 import com.stock.model.TbStockExample;
 

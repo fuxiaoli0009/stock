@@ -2,6 +2,7 @@ package com.stock.service;
 
 import java.math.BigDecimal;
 import java.text.NumberFormat;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -129,5 +130,15 @@ public class SinaApiService {
             return sb.toString().substring(0, sb.length()-1);
     	}
         return null;
+	}
+
+	public String getCodesFromSHZSCodes(List<String> codes, String type) {
+		StringBuffer sb = new StringBuffer();
+		for(String code : codes) {
+			sb.append("s_sh");
+			sb.append(code);
+			sb.append(",");
+		}
+		return sb.toString().substring(0, sb.length()-1);
 	}
 }

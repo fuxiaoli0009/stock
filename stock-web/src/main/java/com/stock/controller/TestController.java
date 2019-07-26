@@ -52,8 +52,26 @@ public class TestController {
 	}
 	
 	@RequestMapping(value = "/test", method = RequestMethod.POST)
-	  public String index(String code) {
-		System.out.println(code);
-	    return "index";
-	  }
+	public Boolean isTradingDay() {
+		List<String> codes = new ArrayList<String>();
+    	codes.add("000001");
+    	codes.add("000300");
+    	codes.add("000016");
+    	codes.add("000905");
+    	codes.add("000009");
+    	codes.add("000903");
+    	codes.add("000906");
+    	Map<String, RemoteDataInfo> remoteMap = remoteDataService.findSHZSRemoteDataInfoMap(null, "1", codes);
+    	int i=0;
+    	for(RemoteDataInfo remoteDataInfo : remoteMap.values()) {
+    		System.out.println(remoteDataInfo.getRatePercent());
+    		if("0.00%".equals(remoteDataInfo.getRatePercent())) {
+    			i++;
+    		}
+    	}
+    	if(i>=3) {
+    		return false;
+    	}
+		return true;
+	}
 }

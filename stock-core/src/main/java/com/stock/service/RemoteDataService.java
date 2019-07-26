@@ -13,5 +13,22 @@ public interface RemoteDataService {
 	
 	public List<StockInfo> assembleDatas(Map<String, RemoteDataInfo> remoteDataInfoMap, List<TbStock> tbStocks, String typeCode);
 	
+	public Map<String, RemoteDataInfo> findSpecialDataInfoMap(String source, String code);
+	
 	public String calculateAverageRatePercent(List<StockInfo> stocks);
+	
+	/**
+	 * 获取上海指数数据
+	 * @param type
+	 * @param source
+	 * @param codes
+	 * @return
+	 */
+	public Map<String, RemoteDataInfo> findSHZSRemoteDataInfoMap(String type, String source, List<String> codes);
+	
+	/**
+	 * 判断是否为交易日
+	 * @return
+	 */
+	public Boolean isTradingDay();
 }

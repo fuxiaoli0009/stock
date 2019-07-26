@@ -1,6 +1,6 @@
 package com.stock.controller;
 
-import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -26,18 +26,29 @@ import io.swagger.annotations.ApiOperation;
 public class IndexController {
 	
 	private final Logger logger = LoggerFactory.getLogger(IndexController.class);
-
+	
+	public static String source = "0";
+	
 	@Autowired
 	private RemoteDataServiceImpl remoteDataService;
 	
+	@ApiOperation(value = "切换", httpMethod = "GET")
+    @RequestMapping(value = "/switch", method = RequestMethod.GET)
+    public void switchSource(String source){
+		IndexController.source = source;
+		RemoteDataServiceImpl.source = source;
+		logger.info("切换渠道source:{}", source);
+	}
+	
     @ApiOperation(value = "查询", httpMethod = "GET")
     @RequestMapping(value = "/index", method = RequestMethod.GET)
-    public ModelAndView index(Map<String, Object> map, String source){
+    public ModelAndView index(Map<String, Object> map){
     	
     	//上证指数 start
-    	String code = "000001";
-    	Map<String, RemoteDataInfo> remoteMap = remoteDataService.findSpecialDataInfoMap(source, code);
-    	RemoteDataInfo remote = remoteMap.get(code);
+    	List<String> codes = new ArrayList<String>();
+    	codes.add("000001");
+    	Map<String, RemoteDataInfo> remoteMap = remoteDataService.findSHZSRemoteDataInfoMap(null, source, codes);
+    	RemoteDataInfo remote = remoteMap.get("000001");
     	String szRatePercent = remote.getRatePercent();
     	//上证指数 end
     	
@@ -61,7 +72,7 @@ public class IndexController {
 
 	@ApiOperation(value = "方式二", httpMethod = "POST")
     @RequestMapping(value = "/indexNew", method = RequestMethod.POST)
-    public String indexNew(String source){
+    public String indexNew(){
 		
 		//上证指数 start
     	String code = "000001";
@@ -89,5 +100,5 @@ public class IndexController {
         map.put("szRatePercent", szRatePercent);
     	return JSON.toJSONString(map);
     }
-    
+
 }

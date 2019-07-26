@@ -25,6 +25,8 @@ public class RemoteDataServiceImpl implements RemoteDataService {
 	
 	private final static String PBPEUrl = "https://www.jisilu.cn/data/stock/";
 	
+	public static String source = "0";
+	
 	@Autowired
 	private TencentApiService tencentApiService;
 	
@@ -41,11 +43,21 @@ public class RemoteDataServiceImpl implements RemoteDataService {
 	}
 	
 	public Map<String, RemoteDataInfo> findRemoteDataInfoMap(String type, String source, List<TbStock> tbStocks) {
-    	//获取不通渠道数据
+    	//获取不同渠道数据
     	if("1".equals(source)) {
     		return this.tencentSource(tbStocks, type);
     	} else {
     		return this.sinaSource(tbStocks, type);
+    	}
+	}
+	
+	//type字段区分各地区的，赞没用到，只计算上海
+	public Map<String, RemoteDataInfo> findSHZSRemoteDataInfoMap(String type, String source, List<String> codes) {
+    	//获取不同渠道数据
+    	if("1".equals(source)) {
+    		return this.tencentSHZSSource(codes, type);
+    	} else {
+    		return this.sinaSHZSSource(codes, type);
     	}
 	}
 	
@@ -68,6 +80,28 @@ public class RemoteDataServiceImpl implements RemoteDataService {
      */
 	public Map<String, RemoteDataInfo> sinaSource(List<TbStock> tbStocks, String type) {
 		String codes = sinaApiService.getCodesFromStocks(tbStocks, type);
+		return sinaApiService.getRealTimeInfoFromRemote(codes);
+    }
+	
+	/**
+     * 获取Tencent上海指数数据
+     * @param tbStocks
+     * @param type
+     * @return
+     */
+	public Map<String, RemoteDataInfo> tencentSHZSSource(List<String> tbStocks, String type) {
+		String codes = tencentApiService.getCodesFromSHZSCodes(tbStocks, type);
+		return tencentApiService.getRealTimeInfoFromRemote(codes.toString());
+    }
+	
+	/**
+     * 获取Sina上海指数数据
+     * @param tbStocks
+     * @param type
+     * @return
+     */
+	public Map<String, RemoteDataInfo> sinaSHZSSource(List<String> tbStocks, String type) {
+		String codes = sinaApiService.getCodesFromSHZSCodes(tbStocks, type);
 		return sinaApiService.getRealTimeInfoFromRemote(codes);
     }
 	
@@ -152,6 +186,29 @@ public class RemoteDataServiceImpl implements RemoteDataService {
 			}
 		}
 		return "0";
+	}
+	
+	public Boolean isTradingDay() {
+		List<String> codes = new ArrayList<String>();
+    	codes.add("000001");
+    	codes.add("000300");
+    	codes.add("000016");
+    	codes.add("000905");
+    	codes.add("000009");
+    	codes.add("000903");
+    	codes.add("000906");
+    	Map<String, RemoteDataInfo> remoteMap = this.findSHZSRemoteDataInfoMap(null, source, codes);
+    	int i=0;
+    	for(RemoteDataInfo remoteDataInfo : remoteMap.values()) {
+    		System.out.println(remoteDataInfo.getRatePercent());
+    		if("0.00%".equals(remoteDataInfo.getRatePercent())) {
+    			i++;
+    		}
+    	}
+    	if(i>=3) {
+    		return false;
+    	}
+		return true;
 	}
 	
 }
