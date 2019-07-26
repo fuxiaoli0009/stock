@@ -15,6 +15,7 @@ import com.stock.dataobject.StockInfo;
 import com.stock.model.TbHistoryData;
 import com.stock.model.TbStock;
 import com.stock.repository.TbHistoryDataMapper;
+import com.stock.service.HistoryDataService;
 import com.stock.service.RemoteDataService;
 import com.stock.service.SinaApiService;
 import com.stock.service.StockService;
@@ -40,6 +41,9 @@ public class RemoteDataServiceImpl implements RemoteDataService {
 	
 	@Autowired
 	private TbHistoryDataMapper tbHistoryDataMapper;
+	
+	@Autowired
+	private HistoryDataService historyDataService;
 	
 	public List<StockInfo> findStocksByType(String type, String source) {
     	List<TbStock> tbStocks = stockService.getStocksByType(type);
@@ -208,6 +212,32 @@ public class RemoteDataServiceImpl implements RemoteDataService {
     		System.out.println(remoteDataInfo.getRatePercent());
     		if("0.00%".equals(remoteDataInfo.getRatePercent())) {
     			i++;
+    		}
+    	}
+    	if(i>=3) {
+    		return false;
+    	}
+		return true;
+	}
+	
+	public Boolean isTradingDayByStar() {
+		List<String> codes = new ArrayList<String>();
+    	codes.add("688001");
+    	codes.add("688002");
+    	codes.add("688003");
+    	codes.add("688005");
+    	codes.add("688006");
+    	codes.add("688007");
+    	codes.add("688008");
+    	//修改为findRemoteDataInfoMap
+    	Map<String, RemoteDataInfo> remoteMap = this.findSHZSRemoteDataInfoMap(null, source, codes);
+    	int i=0;
+    	for(RemoteDataInfo remoteDataInfo : remoteMap.values()) {
+    		TbHistoryData tbHistoryData = historyDataService.selectByCode(remoteDataInfo.getCode());
+    		if(tbHistoryData!=null) {
+    			if(tbHistoryData.getCloseRatePercent().equals(remoteDataInfo.getRatePercent())) {
+    				i++;
+    			}
     		}
     	}
     	if(i>=3) {

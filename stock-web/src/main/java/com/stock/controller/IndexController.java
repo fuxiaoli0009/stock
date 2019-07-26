@@ -18,10 +18,7 @@ import com.alibaba.fastjson.JSON;
 import com.stock.dataobject.RemoteDataInfo;
 import com.stock.dataobject.StockInfo;
 import com.stock.enums.StockTypeEnum;
-import com.stock.repository.TbHistoryDataMapper;
 import com.stock.service.impl.RemoteDataServiceImpl;
-import com.stock.service.impl.StockServiceImpl;
-
 import io.swagger.annotations.ApiOperation;
 
 @RestController

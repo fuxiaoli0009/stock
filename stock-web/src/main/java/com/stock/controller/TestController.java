@@ -17,7 +17,9 @@ import org.springframework.web.bind.annotation.RestController;
 import com.stock.dataobject.RemoteDataInfo;
 import com.stock.dataobject.StockInfo;
 import com.stock.enums.StockTypeEnum;
+import com.stock.model.TbHistoryData;
 import com.stock.model.TbStock;
+import com.stock.service.HistoryDataService;
 import com.stock.service.SinaApiService;
 import com.stock.service.StockService;
 import com.stock.service.TencentApiService;
@@ -38,6 +40,9 @@ public class TestController {
 	
 	@Autowired
 	private StockService stockService;
+	
+	@Autowired
+	private HistoryDataService historyDataService;
 
 	@RequestMapping(value = "/index", method = RequestMethod.POST)
 	public void test() {
@@ -51,7 +56,7 @@ public class TestController {
 		}
 	}
 	
-	@RequestMapping(value = "/test", method = RequestMethod.POST)
+	
 	public Boolean isTradingDay() {
 		List<String> codes = new ArrayList<String>();
     	codes.add("000001");
@@ -67,6 +72,32 @@ public class TestController {
     		System.out.println(remoteDataInfo.getRatePercent());
     		if("0.00%".equals(remoteDataInfo.getRatePercent())) {
     			i++;
+    		}
+    	}
+    	if(i>=3) {
+    		return false;
+    	}
+		return true;
+	}
+	
+	@RequestMapping(value = "/test", method = RequestMethod.POST)
+	public Boolean isTradingDayByStar() {
+		List<String> codes = new ArrayList<String>();
+    	codes.add("688001");
+    	codes.add("688002");
+    	codes.add("688003");
+    	codes.add("688005");
+    	codes.add("688006");
+    	codes.add("688007");
+    	codes.add("688008");
+    	Map<String, RemoteDataInfo> remoteMap = remoteDataService.findSHZSRemoteDataInfoMap(null, "1", codes);
+    	int i=0;
+    	for(RemoteDataInfo remoteDataInfo : remoteMap.values()) {
+    		TbHistoryData tbHistoryData = historyDataService.selectByCode(remoteDataInfo.getCode());
+    		if(tbHistoryData!=null) {
+    			if(tbHistoryData.getCloseRatePercent().equals(remoteDataInfo.getRatePercent())) {
+    				i++;
+    			}
     		}
     	}
     	if(i>=3) {
