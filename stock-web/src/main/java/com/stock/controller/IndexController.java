@@ -18,7 +18,10 @@ import com.alibaba.fastjson.JSON;
 import com.stock.dataobject.RemoteDataInfo;
 import com.stock.dataobject.StockInfo;
 import com.stock.enums.StockTypeEnum;
+import com.stock.repository.TbHistoryDataMapper;
 import com.stock.service.impl.RemoteDataServiceImpl;
+import com.stock.service.impl.StockServiceImpl;
+
 import io.swagger.annotations.ApiOperation;
 
 @RestController
@@ -47,9 +50,12 @@ public class IndexController {
     	//上证指数 start
     	List<String> codes = new ArrayList<String>();
     	codes.add("000001");
-    	Map<String, RemoteDataInfo> remoteMap = remoteDataService.findSHZSRemoteDataInfoMap(null, source, codes);
+    	codes.add("399006");
+    	Map<String, RemoteDataInfo> remoteMap = remoteDataService.findSHZSRemoteDataInfoMap(StockTypeEnum.STOCK_STATUS_HS.getCode(), source, codes);
     	RemoteDataInfo remote = remoteMap.get("000001");
     	String szRatePercent = remote.getRatePercent();
+    	remote = remoteMap.get("399006");
+    	String czRatePercent = remote.getRatePercent();
     	//上证指数 end
     	
     	List<StockInfo> hsViewStocks = remoteDataService.findStocksByType(StockTypeEnum.STOCK_STATUS_HS.getCode(), source);
@@ -67,6 +73,7 @@ public class IndexController {
         map.put("hsAverageRatePercent", hsAverageRatePercent);
         map.put("starAverageRatePercent", starAverageRatePercent);
         map.put("szRatePercent", szRatePercent);
+        map.put("czRatePercent", czRatePercent);
     	return new ModelAndView("/index", "map", map);
     }
 
@@ -75,10 +82,14 @@ public class IndexController {
     public String indexNew(){
 		
 		//上证指数 start
-    	String code = "000001";
-    	Map<String, RemoteDataInfo> remoteMap = remoteDataService.findSpecialDataInfoMap(source, code);
-    	RemoteDataInfo remote = remoteMap.get(code);
+    	List<String> codes = new ArrayList<String>();
+    	codes.add("000001");
+    	codes.add("399006");
+    	Map<String, RemoteDataInfo> remoteMap = remoteDataService.findSHZSRemoteDataInfoMap(StockTypeEnum.STOCK_STATUS_HS.getCode(), source, codes);
+    	RemoteDataInfo remote = remoteMap.get("000001");
     	String szRatePercent = remote.getRatePercent();
+    	remote = remoteMap.get("399006");
+    	String czRatePercent = remote.getRatePercent();
     	//上证指数 end
     	
     	List<StockInfo> hsViewStocks = remoteDataService.findStocksByType(StockTypeEnum.STOCK_STATUS_HS.getCode(), source);
@@ -87,6 +98,8 @@ public class IndexController {
     	Collections.sort(hsViewStocks);
     	Collections.sort(hkViewStocks);
     	Collections.sort(starViewStocks);
+    	
+    	List<Integer> starCloseIndexs = remoteDataService.getCloseIndexsByCode("688000");
     	
     	String hsAverageRatePercent = remoteDataService.calculateAverageRatePercent(hsViewStocks);
     	String starAverageRatePercent = remoteDataService.calculateAverageRatePercent(starViewStocks);
@@ -98,6 +111,8 @@ public class IndexController {
         map.put("hsAverageRatePercent", hsAverageRatePercent);
         map.put("starAverageRatePercent", starAverageRatePercent);
         map.put("szRatePercent", szRatePercent);
+        map.put("czRatePercent", czRatePercent);
+        map.put("starCloseIndexs", starCloseIndexs);
     	return JSON.toJSONString(map);
     }
 

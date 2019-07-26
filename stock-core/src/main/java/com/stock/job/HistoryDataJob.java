@@ -20,7 +20,6 @@ import com.stock.model.TbStock;
 import com.stock.repository.TbHistoryDataMapper;
 import com.stock.service.RemoteDataService;
 import com.stock.service.StockService;
-import com.stock.utils.DateUtils;
 
 @Component
 public class HistoryDataJob {

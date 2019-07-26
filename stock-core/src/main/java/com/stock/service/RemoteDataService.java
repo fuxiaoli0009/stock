@@ -31,4 +31,11 @@ public interface RemoteDataService {
 	 * @return
 	 */
 	public Boolean isTradingDay();
+	
+	/**
+	 * 获取指数收盘信息
+	 * @param string
+	 * @return
+	 */
+	public List<Integer> getCloseIndexsByCode(String code);
 }

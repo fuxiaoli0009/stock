@@ -228,6 +228,13 @@
       <include refid="Example_Where_Clause" />
     </if>
   </select>
+  
+  <select id = "getCloseIndexsByCode" parameterType="string" resultType="java.lang.Integer">
+  	select close_price
+  	from tb_history_data
+  	where code = #{code,jdbcType=VARCHAR} order by close_date desc limit 20
+  </select>
+  
   <update id="updateByExampleSelective" parameterType="map">
     update tb_history_data
     <set>

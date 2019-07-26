@@ -7,7 +7,9 @@ public enum RemoteDataPrefixEnum {
 	TENCENT_HK("hk", "港"),
 	SINA_SH("sh", "沪"),
 	SINA_SZ("sz", "深"),
-	SINA_HK("hk", "港");
+	SINA_HK("hk", "港"),
+	SINA_S_SH("s_sh", "沪指"),
+	SINA_S_SZ("s_sz", "深指");
 
 	private String code;
 	

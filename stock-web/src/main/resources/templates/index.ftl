@@ -7,7 +7,7 @@
     <script src="https://cdn.bootcss.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
 </head>
 <body>
-<h5>上证：${szRatePercent}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;科创：${starAverageRatePercent}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;自选：${hsAverageRatePercent}</h5>
+<h5>上证：${szRatePercent}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;创指：${czRatePercent}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;科创：${starAverageRatePercent}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;自选：${hsAverageRatePercent}</h5>
 <ul class="nav nav-tabs">
     <li class="active"><a href="#hs" data-toggle="tab">主页</a></li>
     <li><a href="#starStock" data-toggle="tab">科创</a></li>
@@ -182,8 +182,8 @@
 </body>
 </html>
 <script>
-    var homeUrl = "http://39.105.142.63:8080/api/";
-    //本地测试 var homeUrl = "http://127.0.0.1:8080/api/";
+    var homeUrl = "http://127.0.0.1:8081/api/";
+    //var homeUrl = "http://39.105.142.63:8080/api/";
     function updateColumn(tdObject, column){
         var id = tdObject.attr("id");
         var oldVal = tdObject.text();

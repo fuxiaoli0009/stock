@@ -12,7 +12,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.stock.dataobject.RemoteDataInfo;
 import com.stock.dataobject.StockInfo;
+import com.stock.model.TbHistoryData;
 import com.stock.model.TbStock;
+import com.stock.repository.TbHistoryDataMapper;
 import com.stock.service.RemoteDataService;
 import com.stock.service.SinaApiService;
 import com.stock.service.StockService;
@@ -35,6 +37,9 @@ public class RemoteDataServiceImpl implements RemoteDataService {
 	
 	@Autowired
 	private StockService stockService;
+	
+	@Autowired
+	private TbHistoryDataMapper tbHistoryDataMapper;
 	
 	public List<StockInfo> findStocksByType(String type, String source) {
     	List<TbStock> tbStocks = stockService.getStocksByType(type);
@@ -174,7 +179,7 @@ public class RemoteDataServiceImpl implements RemoteDataService {
 			BigDecimal sum = new BigDecimal(0);
 			int staticNums = 0;
 			for(int i=0; i<stocks.size(); i++) {
-				if(stocks.get(i).getRatePercent().contains("%")) {
+				if(stocks.get(i).getRatePercent().contains("%") && stocks.get(i).getRealTimePrice()>0) {
 					sum = sum.add(new BigDecimal(stocks.get(i).getRatePercent().replace("%", "")));
 					staticNums++;
 				}
@@ -209,6 +214,10 @@ public class RemoteDataServiceImpl implements RemoteDataService {
     		return false;
     	}
 		return true;
+	}
+
+	public List<Integer> getCloseIndexsByCode(String code) {
+		return tbHistoryDataMapper.getCloseIndexsByCode(code);
 	}
 	
 }

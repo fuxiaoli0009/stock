@@ -27,4 +27,6 @@ public interface TbHistoryDataMapper {
     int updateByPrimaryKeySelective(TbHistoryData record);
 
     int updateByPrimaryKey(TbHistoryData record);
+
+	List<Integer> getCloseIndexsByCode(String code);
 }

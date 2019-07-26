@@ -33,7 +33,7 @@ private final Logger logger = LoggerFactory.getLogger(SinaApiService.class);
 	 * @return
 	 */
 	public Map<String, RemoteDataInfo> getRealTimeInfoFromRemote(String codes) {
-		logger.info("调用Tencent接口批量查询实时信息, url:{}, 入参:{}", codes);
+		logger.info("调用Tencent接口批量查询实时信息, url:{}, 入参:{}", TencentApiService.TENCENT_REMOTE_URL, codes);
 		StopWatch watch = new StopWatch();
 		watch.start();
 		String response = restTemplate.getForObject(TencentApiService.TENCENT_REMOTE_URL + codes, String.class);

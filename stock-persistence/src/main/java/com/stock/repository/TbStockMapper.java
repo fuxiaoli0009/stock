@@ -33,4 +33,6 @@ public interface TbStockMapper {
     int updateByPrimaryKeySelective(TbStock record);
 
     int updateByPrimaryKey(TbStock record);
+
+	void getCloseIndexs(String code);
 }
