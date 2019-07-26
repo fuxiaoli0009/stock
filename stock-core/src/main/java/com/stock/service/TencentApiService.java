@@ -33,7 +33,7 @@ private final Logger logger = LoggerFactory.getLogger(SinaApiService.class);
 	 * @return
 	 */
 	public Map<String, RemoteDataInfo> getRealTimeInfoFromRemote(String codes) {
-		logger.info("调用Tencent接口批量查询实时信息, url:{}, 入参:{}", TencentApiService.TENCENT_REMOTE_URL, codes);
+		logger.info("调用Tencent接口批量查询实时信息, url:{}", TencentApiService.TENCENT_REMOTE_URL+codes);
 		StopWatch watch = new StopWatch();
 		watch.start();
 		String response = restTemplate.getForObject(TencentApiService.TENCENT_REMOTE_URL + codes, String.class);
@@ -110,7 +110,7 @@ private final Logger logger = LoggerFactory.getLogger(SinaApiService.class);
 	public String getCodesFromSHZSCodes(List<String> codes, String type) {
 		StringBuffer sb = new StringBuffer();
 		for(String code : codes) {
-			sb.append("s_sh");
+			sb.append(code.startsWith("0")?"s_sh":"s_sz");
 			sb.append(code);
 			sb.append(",");
 		}

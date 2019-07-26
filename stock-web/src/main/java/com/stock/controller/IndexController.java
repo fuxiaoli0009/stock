@@ -37,10 +37,22 @@ public class IndexController {
 	
 	@ApiOperation(value = "切换", httpMethod = "GET")
     @RequestMapping(value = "/switch", method = RequestMethod.GET)
-    public void switchSource(String source){
-		IndexController.source = source;
-		RemoteDataServiceImpl.source = source;
-		logger.info("切换渠道source:{}", source);
+    public String switchSource(){
+		try {
+			if("0".equals(IndexController.source)) {
+				IndexController.source = "1";
+				RemoteDataServiceImpl.source = "1";
+			}else {
+				IndexController.source = "0";
+				RemoteDataServiceImpl.source = "0";
+			}
+		} catch (Exception e) {
+			logger.error("切换渠道异常", e);
+			return "切换渠道异常";
+		}
+		logger.info("切换渠道source:{}", IndexController.source);
+		return "切换渠道成功";
+		
 	}
 	
     @ApiOperation(value = "查询", httpMethod = "GET")
@@ -74,6 +86,7 @@ public class IndexController {
         map.put("starAverageRatePercent", starAverageRatePercent);
         map.put("szRatePercent", szRatePercent);
         map.put("czRatePercent", czRatePercent);
+        map.put("source", IndexController.source);
     	return new ModelAndView("/index", "map", map);
     }
 
@@ -113,6 +126,7 @@ public class IndexController {
         map.put("szRatePercent", szRatePercent);
         map.put("czRatePercent", czRatePercent);
         map.put("starCloseIndexs", starCloseIndexs);
+        map.put("source", IndexController.source);
     	return JSON.toJSONString(map);
     }
 
