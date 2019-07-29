@@ -30,7 +30,7 @@ public interface RemoteDataService {
 	 * 判断是否为交易日
 	 * @return
 	 */
-	public Boolean isTradingDay();
+	public Boolean isTradingDayByStar();
 	
 	/**
 	 * 获取指数收盘信息

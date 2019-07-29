@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.stock.dataobject.RemoteDataInfo;
 import com.stock.dataobject.StockInfo;
+import com.stock.enums.StockTypeEnum;
 import com.stock.model.TbHistoryData;
 import com.stock.model.TbStock;
 import com.stock.repository.TbHistoryDataMapper;
@@ -221,16 +222,29 @@ public class RemoteDataServiceImpl implements RemoteDataService {
 	}
 	
 	public Boolean isTradingDayByStar() {
-		List<String> codes = new ArrayList<String>();
-    	codes.add("688001");
-    	codes.add("688002");
-    	codes.add("688003");
-    	codes.add("688005");
-    	codes.add("688006");
-    	codes.add("688007");
-    	codes.add("688008");
-    	//修改为findRemoteDataInfoMap
-    	Map<String, RemoteDataInfo> remoteMap = this.findSHZSRemoteDataInfoMap(null, source, codes);
+		List<TbStock> tbStocks = new ArrayList<TbStock>();
+		TbStock tbStock = new TbStock();
+		tbStock.setCode("688001");
+		tbStocks.add(tbStock);
+		tbStock = new TbStock();
+		tbStock.setCode("688002");
+		tbStocks.add(tbStock);
+		tbStock = new TbStock();
+		tbStock.setCode("688003");
+		tbStocks.add(tbStock);
+		tbStock = new TbStock();
+		tbStock.setCode("688005");
+		tbStocks.add(tbStock);
+		tbStock = new TbStock();
+		tbStock.setCode("688006");
+		tbStocks.add(tbStock);
+		tbStock = new TbStock();
+		tbStock.setCode("688007");
+		tbStocks.add(tbStock);
+		tbStock = new TbStock();
+		tbStock.setCode("688008");
+		tbStocks.add(tbStock);
+    	Map<String, RemoteDataInfo> remoteMap = this.findRemoteDataInfoMap(StockTypeEnum.STOCK_STAR.getCode(), source, tbStocks);
     	int i=0;
     	for(RemoteDataInfo remoteDataInfo : remoteMap.values()) {
     		TbHistoryData tbHistoryData = historyDataService.selectByCode(remoteDataInfo.getCode());
@@ -240,7 +254,7 @@ public class RemoteDataServiceImpl implements RemoteDataService {
     			}
     		}
     	}
-    	if(i>=3) {
+    	if(i>=4) {
     		return false;
     	}
 		return true;
