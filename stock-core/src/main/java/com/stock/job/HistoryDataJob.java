@@ -37,10 +37,10 @@ public class HistoryDataJob {
 	@Autowired
 	private TbHistoryDataMapper tbHistoryDataMapper;
 
-	@Scheduled(cron = "0 04 13 * * ?")
+	@Scheduled(cron = "0 26 17 * * ?")
 	public void saveCloseDataInfo() {
 		
-		if(remoteDataService.isTradingDayByStar()) {
+		if(!remoteDataService.isTradingDayByStar()) {
 			//该方法不做事务处理
 			String type = StockTypeEnum.STOCK_STAR.getCode();
 			List<TbStock> tbStocks = stockService.getStocksByType(type);
@@ -85,13 +85,14 @@ public class HistoryDataJob {
 			//计算并保存当日科创指数收盘数据
 			if(staticNums > 0) {
 				TbHistoryDataExample example = new TbHistoryDataExample();
-				example.or().andCodeEqualTo("688000");
+				example.or().andCodeEqualTo("688000").andCloseDateNotEqualTo(closeDate);
 				List<TbHistoryData> tbHistoryDataList = tbHistoryDataMapper.selectByExample(example);
 				TbHistoryData tbHistoryData = tbHistoryDataList.get(tbHistoryDataList.size()-1);
 				BigDecimal lastClosePrice = tbHistoryData.getClosePrice();
 				BigDecimal avgRate = sum.divide(new BigDecimal(staticNums),3,BigDecimal.ROUND_HALF_DOWN);//平均涨幅（无%）
 				BigDecimal cal = new BigDecimal(100);
 				BigDecimal closePrice = cal.add(avgRate).multiply(lastClosePrice).divide(new BigDecimal(100), 3, BigDecimal.ROUND_HALF_DOWN);
+				logger.info("【记录STAR收盘数据】staticNums:{}, sum:{}, closePrice:{}, lastClosePrice", staticNums, sum, closePrice, lastClosePrice);
 				TbHistoryDataExample exampleToday = new TbHistoryDataExample();
 				exampleToday.or().andCodeEqualTo("688000").andCloseDateEqualTo(closeDate);
 				List<TbHistoryData> tbHistoryDataListToday = tbHistoryDataMapper.selectByExample(exampleToday);
