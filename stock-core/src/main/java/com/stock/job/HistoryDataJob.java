@@ -37,8 +37,7 @@ public class HistoryDataJob {
 	@Autowired
 	private TbHistoryDataMapper tbHistoryDataMapper;
 
-	@Scheduled(cron = "0 0 17 * * ?")
-	public void saveCloseDataInfo() {
+	public void saveCloseDataInfo2() {
 		
 		if(remoteDataService.isTradingDayByStar()) {
 			//该方法不做事务处理
@@ -119,8 +118,8 @@ public class HistoryDataJob {
 		
 	}
 	
-	@Scheduled(cron = "0 42 18 * * ?")
-	public void saveCloseDataInfo2() {
+	@Scheduled(cron = "0 0 17 * * ?")
+	public void saveCloseDataInfo() {
 		
 		if(remoteDataService.isTradingDayByStar()) {
 			String type = StockTypeEnum.STOCK_STAR.getCode();
