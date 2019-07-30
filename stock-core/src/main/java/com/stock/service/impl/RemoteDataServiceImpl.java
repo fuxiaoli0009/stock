@@ -48,8 +48,11 @@ public class RemoteDataServiceImpl implements RemoteDataService {
 	
 	public List<StockInfo> findStocksByType(String type, String source) {
     	List<TbStock> tbStocks = stockService.getStocksByType(type);
-    	Map<String, RemoteDataInfo> remoteDataInfoMap = this.findRemoteDataInfoMap(type, source, tbStocks);
-    	return this.assembleDatas(remoteDataInfoMap, tbStocks, type);
+    	if(tbStocks!=null&&tbStocks.size()>0) {
+    		Map<String, RemoteDataInfo> remoteDataInfoMap = this.findRemoteDataInfoMap(type, source, tbStocks);
+        	return this.assembleDatas(remoteDataInfoMap, tbStocks, type);
+    	}
+    	return null;
 	}
 	
 	public Map<String, RemoteDataInfo> findRemoteDataInfoMap(String type, String source, List<TbStock> tbStocks) {
@@ -195,7 +198,7 @@ public class RemoteDataServiceImpl implements RemoteDataService {
 				return result.toString()+"%";
 			}
 		}
-		return "0";
+		return "0.00%";
 	}
 	
 	public Boolean isTradingDay() {

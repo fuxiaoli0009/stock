@@ -4,7 +4,8 @@ public enum StockTypeEnum {
 	
 	STOCK_STATUS_HS("0", "沪深"),
 	STOCK_STATUS_HK("1", "香港"),
-	STOCK_STAR("2", "科创");
+	STOCK_STAR("2", "科创"),
+	STOCK_STATUS_CHOSEN("9", "选中");
 
 	private String code;
 	

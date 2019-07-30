@@ -1,5 +1,6 @@
 package com.stock.controller;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -70,17 +71,29 @@ public class IndexController {
     	List<StockInfo> hsViewStocks = remoteDataService.findStocksByType(StockTypeEnum.STOCK_STATUS_HS.getCode(), source);
     	List<StockInfo> hkViewStocks = remoteDataService.findStocksByType(StockTypeEnum.STOCK_STATUS_HK.getCode(), source);
     	List<StockInfo> starViewStocks = remoteDataService.findStocksByType(StockTypeEnum.STOCK_STAR.getCode(), source);
+    	List<StockInfo> chosenViewStocks = remoteDataService.findStocksByType(StockTypeEnum.STOCK_STATUS_CHOSEN.getCode(), source);
     	Collections.sort(hsViewStocks);
     	Collections.sort(hkViewStocks);
     	Collections.sort(starViewStocks);
     	
     	String hsAverageRatePercent = remoteDataService.calculateAverageRatePercent(hsViewStocks);
     	String starAverageRatePercent = remoteDataService.calculateAverageRatePercent(starViewStocks);
+    	String chosenAverageRatePercent = remoteDataService.calculateAverageRatePercent(chosenViewStocks);
+    	
+    	//科创指数
+    	List<Integer> starCloseIndexs = remoteDataService.getCloseIndexsByCode("688000");
+    	if(remoteDataService.isTradingDayByStar()) {
+    		Integer lastCloseIndex = starCloseIndexs.get(starCloseIndexs.size()-1);
+    		BigDecimal todayIndex = new BigDecimal(100).add(new BigDecimal(starAverageRatePercent.replace("%", ""))).multiply(new BigDecimal(lastCloseIndex)).divide(new BigDecimal(100), 3, BigDecimal.ROUND_HALF_DOWN);
+    		starCloseIndexs.add(todayIndex.intValue());
+    	}
+    	
     	map.put("hsStocks", hsViewStocks);
     	map.put("hkStocks", hkViewStocks);
         map.put("starStocks", starViewStocks);
         map.put("hsAverageRatePercent", hsAverageRatePercent);
         map.put("starAverageRatePercent", starAverageRatePercent);
+        map.put("chosenAverageRatePercent", chosenAverageRatePercent);
         map.put("szRatePercent", szRatePercent);
         map.put("czRatePercent", czRatePercent);
         map.put("source", IndexController.source);
@@ -105,14 +118,22 @@ public class IndexController {
     	List<StockInfo> hsViewStocks = remoteDataService.findStocksByType(StockTypeEnum.STOCK_STATUS_HS.getCode(), source);
     	List<StockInfo> hkViewStocks = remoteDataService.findStocksByType(StockTypeEnum.STOCK_STATUS_HK.getCode(), source);
     	List<StockInfo> starViewStocks = remoteDataService.findStocksByType(StockTypeEnum.STOCK_STAR.getCode(), source);
+    	List<StockInfo> chosenViewStocks = remoteDataService.findStocksByType(StockTypeEnum.STOCK_STATUS_CHOSEN.getCode(), source);
     	Collections.sort(hsViewStocks);
     	Collections.sort(hkViewStocks);
     	Collections.sort(starViewStocks);
     	
-    	List<Integer> starCloseIndexs = remoteDataService.getCloseIndexsByCode("688000");
-    	
     	String hsAverageRatePercent = remoteDataService.calculateAverageRatePercent(hsViewStocks);
     	String starAverageRatePercent = remoteDataService.calculateAverageRatePercent(starViewStocks);
+    	String chosenAverageRatePercent = remoteDataService.calculateAverageRatePercent(chosenViewStocks);
+    	
+    	//科创指数
+    	List<Integer> starCloseIndexs = remoteDataService.getCloseIndexsByCode("688000");
+    	if(remoteDataService.isTradingDayByStar()) {
+    		Integer lastCloseIndex = starCloseIndexs.get(starCloseIndexs.size()-1);
+    		BigDecimal todayIndex = new BigDecimal(100).add(new BigDecimal(starAverageRatePercent.replace("%", ""))).multiply(new BigDecimal(lastCloseIndex)).divide(new BigDecimal(100), 3, BigDecimal.ROUND_HALF_DOWN);
+    		starCloseIndexs.add(todayIndex.intValue());
+    	}
     	
     	Map<String, Object> map = new HashMap<String, Object>();
     	map.put("hsStocks", hsViewStocks);
@@ -120,6 +141,7 @@ public class IndexController {
         map.put("starStocks", starViewStocks);
         map.put("hsAverageRatePercent", hsAverageRatePercent);
         map.put("starAverageRatePercent", starAverageRatePercent);
+        map.put("chosenAverageRatePercent", chosenAverageRatePercent);
         map.put("szRatePercent", szRatePercent);
         map.put("czRatePercent", czRatePercent);
         map.put("starCloseIndexs", starCloseIndexs);
