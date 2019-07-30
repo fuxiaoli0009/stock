@@ -6,12 +6,15 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -27,6 +30,8 @@ import io.swagger.annotations.ApiOperation;
 public class IndexController {
 	
 	private final Logger logger = LoggerFactory.getLogger(IndexController.class);
+	
+	private Map<String, List<StockInfo>> map = new HashMap<String, List<StockInfo>>();
 	
 	public static String source = "0";
 	
@@ -123,6 +128,9 @@ public class IndexController {
     	Collections.sort(hkViewStocks);
     	Collections.sort(starViewStocks);
     	
+    	//key值可以优化为userId等
+    	map.put("hsViewStocks", hsViewStocks);
+    	
     	String hsAverageRatePercent = remoteDataService.calculateAverageRatePercent(hsViewStocks);
     	String starAverageRatePercent = remoteDataService.calculateAverageRatePercent(starViewStocks);
     	String chosenAverageRatePercent = remoteDataService.calculateAverageRatePercent(chosenViewStocks);
@@ -148,5 +156,17 @@ public class IndexController {
         map.put("source", IndexController.source);
     	return JSON.toJSONString(map);
     }
+	
+	
+	@RequestMapping(value = "/getCodes", method = RequestMethod.POST)
+	public String getCodes() {
+		List<StockInfo> hsViewStocks = map.get("hsViewStocks");
+		StringBuilder sb = new StringBuilder();
+		for(StockInfo stockInfo : hsViewStocks) {
+			sb.append(stockInfo.getCode());
+			sb.append("<br/>");
+		}
+		return sb.toString();
+	}
 
 }

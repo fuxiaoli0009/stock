@@ -266,5 +266,5 @@ public class RemoteDataServiceImpl implements RemoteDataService {
 	public List<Integer> getCloseIndexsByCode(String code) {
 		return tbHistoryDataMapper.getCloseIndexsByCode(code);
 	}
-	
+
 }
