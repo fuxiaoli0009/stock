@@ -59,6 +59,9 @@ private final Logger logger = LoggerFactory.getLogger(SinaApiService.class);
 					remote.setName(strs[1]);
 					remote.setRealTimePrice(Double.parseDouble(strs[3]));
 					remote.setRatePercent(strs[5]+"%");
+					if(strs[0].contains(RemoteDataPrefixEnum.TENCENT_SH.getCode())||strs[0].contains(RemoteDataPrefixEnum.TENCENT_SZ.getCode())){
+						remote.setTurnOver(Long.valueOf(strs[7])*10000);
+					}
 					remoteDataInfoMap.put(remote.getCode(), remote);
 				} catch (Exception e) {
 					logger.error("数据:{},封装Tencent数据为通用模板异常", responseArray[i], e);

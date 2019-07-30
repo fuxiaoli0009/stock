@@ -12,6 +12,8 @@ public class RemoteDataInfo {
 	public Double realTimePrice;
 	
 	public String ratePercent;
+	
+	public Long turnOver; //成交额-元
 
 	public String getCode() {
 		return code;
@@ -43,6 +45,19 @@ public class RemoteDataInfo {
 
 	public void setRatePercent(String ratePercent) {
 		this.ratePercent = ratePercent;
+	}
+
+	public Long getTurnOver() {
+		return turnOver;
+	}
+
+	public void setTurnOver(Long turnOver) {
+		this.turnOver = turnOver;
+	}
+	
+	public static void main(String[] args) {
+		Long a = 100010001L * 10000;
+		System.out.println(a);
 	}
 	
 }

@@ -90,6 +90,7 @@ public class SinaApiService {
 					} else {
 						remote.setRatePercent("0.00%");
 					}
+					remote.setTurnOver(Long.valueOf(datas[9].replace(".000", "")));
 				}
 				remote.setCode(code);
 				remote.setName(name);
@@ -148,4 +149,5 @@ public class SinaApiService {
 		}
 		return sb.toString().substring(0, sb.length()-1);
 	}
+	
 }
