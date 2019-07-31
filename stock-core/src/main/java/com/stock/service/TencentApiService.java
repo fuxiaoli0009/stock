@@ -84,7 +84,7 @@ private final Logger logger = LoggerFactory.getLogger(SinaApiService.class);
             for(TbStock tbStock : tbStocks){
             	String code = tbStock.getCode();
                 try {
-                	if(StockTypeEnum.STOCK_STATUS_HS.getCode().equals(typeCode)) {
+                	if(StockTypeEnum.STOCK_STATUS_HS.getCode().equals(typeCode)||StockTypeEnum.STOCK_STATUS_CHOSEN.getCode().equals(typeCode)) {
                 		sb.append(code.length() == 6 && code.startsWith("6") ? RemoteDataPrefixEnum.TENCENT_SH.getCode() : RemoteDataPrefixEnum.TENCENT_SZ.getCode());
                 	}
                 	if(StockTypeEnum.STOCK_STATUS_HK.getCode().equals(typeCode)) {

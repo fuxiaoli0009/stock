@@ -49,13 +49,13 @@ public class RemoteDataServiceImpl implements RemoteDataService {
 	public List<StockInfo> findStocksByType(String type, String source) {
     	List<TbStock> tbStocks = stockService.getStocksByType(type);
     	if(tbStocks!=null&&tbStocks.size()>0) {
-    		Map<String, RemoteDataInfo> remoteDataInfoMap = this.findRemoteDataInfoMap(type, source, tbStocks);
+    		Map<String, RemoteDataInfo> remoteDataInfoMap = this.findRemoteDataInfoMap(type, tbStocks);
         	return this.assembleDatas(remoteDataInfoMap, tbStocks, type);
     	}
     	return null;
 	}
 	
-	public Map<String, RemoteDataInfo> findRemoteDataInfoMap(String type, String source, List<TbStock> tbStocks) {
+	public Map<String, RemoteDataInfo> findRemoteDataInfoMap(String type, List<TbStock> tbStocks) {
     	//获取不同渠道数据
     	if("1".equals(source)) {
     		return this.tencentSource(tbStocks, type);
@@ -247,7 +247,7 @@ public class RemoteDataServiceImpl implements RemoteDataService {
 		tbStock = new TbStock();
 		tbStock.setCode("688008");
 		tbStocks.add(tbStock);
-    	Map<String, RemoteDataInfo> remoteMap = this.findRemoteDataInfoMap(StockTypeEnum.STOCK_STAR.getCode(), source, tbStocks);
+    	Map<String, RemoteDataInfo> remoteMap = this.findRemoteDataInfoMap(StockTypeEnum.STOCK_STAR.getCode(), tbStocks);
     	int i=0;
     	for(RemoteDataInfo remoteDataInfo : remoteMap.values()) {
     		TbHistoryData tbHistoryData = historyDataService.selectByCode(remoteDataInfo.getCode());

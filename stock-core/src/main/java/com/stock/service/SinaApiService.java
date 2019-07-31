@@ -49,55 +49,59 @@ public class SinaApiService {
 	 * @return
 	 */
 	public Map<String, RemoteDataInfo> remoteDataInfoMap(String response){
-		if(response!=null && response.contains(";")) {
-			String[] responseArray = response.split("\n");
-			Map<String, RemoteDataInfo> remoteDataInfoMap = new HashMap<String, RemoteDataInfo>();
-			for(int i=0; i< responseArray.length; i++) {
-				RemoteDataInfo remote = new RemoteDataInfo();
-				String[] datas = responseArray[i].split(",");  //每条数据
-				String[] market = datas[0].split("=\"");
-				String codeStr = market[0];
-				String code = "";
-				String name = "";
-				Double realTimePrice = 0D;
-				Double yesterdayPrice = 0D;//今日涨跌及百分比
-				if(codeStr.contains(RemoteDataPrefixEnum.SINA_S_SH.getCode()) || codeStr.contains(RemoteDataPrefixEnum.SINA_S_SZ.getCode())) {
-					//沪深指数解析
-					code = codeStr.substring(codeStr.length()-6, codeStr.length());
-					name = market[1];
-					realTimePrice = Double.parseDouble(datas[1]);
-					remote.setRatePercent(datas[3]+"%");
-				}else if(codeStr.contains(RemoteDataPrefixEnum.SINA_HK.getCode())) {
-					//港股解析
-					code = codeStr.substring(codeStr.length()-5, codeStr.length());
-					name = datas[1];
-					realTimePrice = Double.parseDouble(datas[6]);
-					remote.setRatePercent(datas[8]+"%");
-				}else{
-					//沪深股票解析
-					code = codeStr.substring(codeStr.length()-6, codeStr.length());
-					name = market[1];
-					realTimePrice = Double.parseDouble(datas[3]);
-					yesterdayPrice = datas[2].startsWith("0.0")?realTimePrice:Double.parseDouble(datas[2]);//昨天收盘价
-					if(realTimePrice!=0 && yesterdayPrice!=0) {
-						BigDecimal b1 = new BigDecimal(realTimePrice).subtract(new BigDecimal(Double.toString(yesterdayPrice)));  
-						BigDecimal b2 = new BigDecimal(Double.toString(yesterdayPrice));
-						Double rate = b1.divide(b2, 4, BigDecimal.ROUND_HALF_UP).doubleValue();
-						NumberFormat nf = NumberFormat.getPercentInstance();
-						nf.setMaximumIntegerDigits(4); //小数点前保留几位
-						nf.setMinimumFractionDigits(2);//小数点后保留几位
-						remote.setRatePercent(nf.format(rate));
-					} else {
-						remote.setRatePercent("0.00%");
+		try {
+			if(response!=null && response.contains(";")) {
+				String[] responseArray = response.split("\n");
+				Map<String, RemoteDataInfo> remoteDataInfoMap = new HashMap<String, RemoteDataInfo>();
+				for(int i=0; i< responseArray.length; i++) {
+					RemoteDataInfo remote = new RemoteDataInfo();
+					String[] datas = responseArray[i].split(",");  //每条数据
+					String[] market = datas[0].split("=\"");
+					String codeStr = market[0];
+					String code = "";
+					String name = "";
+					Double realTimePrice = 0D;
+					Double yesterdayPrice = 0D;//今日涨跌及百分比
+					if(codeStr.contains(RemoteDataPrefixEnum.SINA_S_SH.getCode()) || codeStr.contains(RemoteDataPrefixEnum.SINA_S_SZ.getCode())) {
+						//沪深指数解析
+						code = codeStr.substring(codeStr.length()-6, codeStr.length());
+						name = market[1];
+						realTimePrice = Double.parseDouble(datas[1]);
+						remote.setRatePercent(datas[3]+"%");
+					}else if(codeStr.contains(RemoteDataPrefixEnum.SINA_HK.getCode())) {
+						//港股解析
+						code = codeStr.substring(codeStr.length()-5, codeStr.length());
+						name = datas[1];
+						realTimePrice = Double.parseDouble(datas[6]);
+						remote.setRatePercent(datas[8]+"%");
+					}else{
+						//沪深股票解析
+						code = codeStr.substring(codeStr.length()-6, codeStr.length());
+						name = market[1];
+						realTimePrice = Double.parseDouble(datas[3]);
+						yesterdayPrice = datas[2].startsWith("0.0")?realTimePrice:Double.parseDouble(datas[2]);//昨天收盘价
+						if(realTimePrice!=0 && yesterdayPrice!=0) {
+							BigDecimal b1 = new BigDecimal(realTimePrice).subtract(new BigDecimal(Double.toString(yesterdayPrice)));  
+							BigDecimal b2 = new BigDecimal(Double.toString(yesterdayPrice));
+							Double rate = b1.divide(b2, 4, BigDecimal.ROUND_HALF_UP).doubleValue();
+							NumberFormat nf = NumberFormat.getPercentInstance();
+							nf.setMaximumIntegerDigits(4); //小数点前保留几位
+							nf.setMinimumFractionDigits(2);//小数点后保留几位
+							remote.setRatePercent(nf.format(rate));
+						} else {
+							remote.setRatePercent("0.00%");
+						}
+						remote.setTurnOver(Long.parseLong(datas[9].substring(0, datas[9].indexOf("."))));
 					}
-					remote.setTurnOver(Long.valueOf(datas[9].replace(".000", "")));
+					remote.setCode(code);
+					remote.setName(name);
+					remote.setRealTimePrice(realTimePrice);
+					remoteDataInfoMap.put(remote.getCode(), remote);
 				}
-				remote.setCode(code);
-				remote.setName(name);
-				remote.setRealTimePrice(realTimePrice);
-				remoteDataInfoMap.put(remote.getCode(), remote);
+				return remoteDataInfoMap;
 			}
-			return remoteDataInfoMap;
+		} catch (NumberFormatException e) {
+			logger.error("封装Sina数据为通用模板RemoteDataInfo数据异常", e);
 		}
 		return null;
 	}
@@ -114,7 +118,7 @@ public class SinaApiService {
             for(TbStock tbStock : tbStocks){
             	String code = tbStock.getCode();
                 try {
-                	if(StockTypeEnum.STOCK_STATUS_HS.getCode().equals(typeCode)) {
+                	if(StockTypeEnum.STOCK_STATUS_HS.getCode().equals(typeCode)||StockTypeEnum.STOCK_STATUS_CHOSEN.getCode().equals(typeCode)) {
                 		sb.append(code.length() == 6 && code.startsWith("6") ? RemoteDataPrefixEnum.SINA_SH.getCode() : RemoteDataPrefixEnum.SINA_SZ.getCode());
                 	}
                 	if(StockTypeEnum.STOCK_STATUS_HK.getCode().equals(typeCode)) {

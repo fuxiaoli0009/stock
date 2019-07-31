@@ -34,6 +34,8 @@ public class StockServiceImpl implements StockService, InitializingBean {
 	
 	private List<TbStock> starStocks = new ArrayList<TbStock>();
 	
+	private List<TbStock> chosenStocks = new ArrayList<TbStock>();
+	
     @Autowired
     private TbStockMapper tbStockMapper;
     
@@ -48,14 +50,14 @@ public class StockServiceImpl implements StockService, InitializingBean {
 				hsStocks = updateStockCache(StockTypeEnum.STOCK_STATUS_HS.getCode());
 				hkStocks = updateStockCache(StockTypeEnum.STOCK_STATUS_HK.getCode());
 				starStocks = updateStockCache(StockTypeEnum.STOCK_STAR.getCode());
+				chosenStocks = updateStockCache(StockTypeEnum.STOCK_STATUS_CHOSEN.getCode());
 			}
     		
-    	}, 0, 5, TimeUnit.MINUTES);
+    	}, 0, 3, TimeUnit.MINUTES);
 	}
     
     protected List<TbStock> updateStockCache(String typeCode) {
     	try {
-    		logger.info("Start to get newest stocks info.");
     		TbStockExample example = new TbStockExample();
     		example.createCriteria().andStatusEqualTo(StockStatusEnum.STOCK_STATUS_INIT.getCode()).andTypeEqualTo(typeCode);
     		return tbStockMapper.selectByExample(example);
@@ -74,6 +76,8 @@ public class StockServiceImpl implements StockService, InitializingBean {
 			return hkStocks;
 		}else if(StockTypeEnum.STOCK_STAR.getCode().equals(typeCode)) {
 			return starStocks;
+		}else if(StockTypeEnum.STOCK_STATUS_CHOSEN.getCode().equals(typeCode)){
+			return chosenStocks;
 		}else {
 			return null;
 		}

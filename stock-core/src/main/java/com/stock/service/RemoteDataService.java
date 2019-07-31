@@ -9,7 +9,7 @@ import java.util.Map;
 
 public interface RemoteDataService {
 	
-	public Map<String, RemoteDataInfo> findRemoteDataInfoMap(String type, String source, List<TbStock> tbStocks);
+	public Map<String, RemoteDataInfo> findRemoteDataInfoMap(String type, List<TbStock> tbStocks);
 	
 	public List<StockInfo> assembleDatas(Map<String, RemoteDataInfo> remoteDataInfoMap, List<TbStock> tbStocks, String typeCode);
 	
