@@ -58,7 +58,11 @@ private final Logger logger = LoggerFactory.getLogger(SinaApiService.class);
 					remote.setCode(strs[2]);
 					remote.setName(strs[1]);
 					remote.setRealTimePrice(Double.parseDouble(strs[3]));
-					remote.setRatePercent(strs[5]+"%");
+					if(strs[0].contains(RemoteDataPrefixEnum.TENCENT_HK.getCode())) {
+						remote.setRatePercent(strs[32]+"%");
+					}else {
+						remote.setRatePercent(strs[5]+"%");
+					}
 					if(strs[0].contains(RemoteDataPrefixEnum.TENCENT_SH.getCode())||strs[0].contains(RemoteDataPrefixEnum.TENCENT_SZ.getCode())){
 						remote.setTurnOver(Long.valueOf(strs[7])*10000);
 					}
