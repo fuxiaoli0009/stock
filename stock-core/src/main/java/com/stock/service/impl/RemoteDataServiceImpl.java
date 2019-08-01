@@ -3,6 +3,7 @@ package com.stock.service.impl;
 import java.math.BigDecimal;
 import java.text.NumberFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -258,8 +259,10 @@ public class RemoteDataServiceImpl implements RemoteDataService {
     		}
     	}
     	if(i>=4) {
+    		logger.info("{}:判断为非交易日.", new Date());
     		return false;
     	}
+    	logger.info("{}:判断为交易日.", new Date());
 		return true;
 	}
 

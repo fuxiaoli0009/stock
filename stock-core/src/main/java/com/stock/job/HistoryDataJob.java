@@ -37,14 +37,12 @@ public class HistoryDataJob {
 	@Autowired
 	private TbHistoryDataMapper tbHistoryDataMapper;
 
-	@Scheduled(cron = "0 0 17 * * ?")
 	public void saveCloseDataInfoByStar() {
 		String type = StockTypeEnum.STOCK_STAR.getCode();
 		String calCode = "688000";
 		this.calAndSaveCloseDataInfo(type, calCode);
 	}
 	
-	@Scheduled(cron = "0 5 17 * * ?")
 	public void saveCloseDataInfoByChosen() {
 		String type = StockTypeEnum.STOCK_STATUS_CHOSEN.getCode();
 		String calCode = "900001";
