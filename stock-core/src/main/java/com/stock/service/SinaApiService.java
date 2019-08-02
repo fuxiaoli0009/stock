@@ -13,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import com.stock.dataobject.RemoteDataInfo;
 import com.stock.enums.RemoteDataPrefixEnum;
@@ -33,12 +34,18 @@ public class SinaApiService {
 	RestTemplate restTemplate;
 	
 	public Map<String, RemoteDataInfo> getRealTimeInfoFromRemote(String codes) {
-		logger.info("调用Sina接口批量查询股票实时信息, url:{}", SinaApiService.SINA_REMOTE_URL+codes);
-		StopWatch watch = new StopWatch();
-		watch.start();
-		String response = restTemplate.getForObject(SinaApiService.SINA_REMOTE_URL + codes, String.class);
-		watch.stop();
-		logger.info("调用Sina接口批量查询股票实时信息, 耗时:{}毫秒, 返回结果:{}", watch.getTime(), response);
+		String response = null;
+		try {
+			logger.info("调用Sina接口批量查询股票实时信息, url:{}", SinaApiService.SINA_REMOTE_URL+codes);
+			StopWatch watch = new StopWatch();
+			watch.start();
+			response = restTemplate.getForObject(SinaApiService.SINA_REMOTE_URL + codes, String.class);
+			watch.stop();
+			logger.info("调用Sina接口批量查询股票实时信息, 耗时:{}毫秒, 返回结果:{}", watch.getTime(), response);
+		} catch (RestClientException e) {
+			logger.error("调用Sina接口批量查询股票实时信息", e);
+			//存表，邮件，或报警
+		}
 		return remoteDataInfoMap(response);
 	}
 	
@@ -49,11 +56,11 @@ public class SinaApiService {
 	 * @return
 	 */
 	public Map<String, RemoteDataInfo> remoteDataInfoMap(String response){
-		try {
-			if(response!=null && response.contains(";")) {
-				String[] responseArray = response.split("\n");
-				Map<String, RemoteDataInfo> remoteDataInfoMap = new HashMap<String, RemoteDataInfo>();
-				for(int i=0; i< responseArray.length; i++) {
+		if(response!=null && response.contains(";")) {
+			String[] responseArray = response.split("\n");
+			Map<String, RemoteDataInfo> remoteDataInfoMap = new HashMap<String, RemoteDataInfo>();
+			for(int i=0; i< responseArray.length; i++) {
+				try {
 					RemoteDataInfo remote = new RemoteDataInfo();
 					String[] datas = responseArray[i].split(",");  //每条数据
 					String[] market = datas[0].split("=\"");
@@ -97,11 +104,13 @@ public class SinaApiService {
 					remote.setName(name);
 					remote.setRealTimePrice(realTimePrice);
 					remoteDataInfoMap.put(remote.getCode(), remote);
+				} catch (Exception e) {
+					logger.error("封装Sina数据为通用模板RemoteDataInfo数据异常,{}", responseArray[i], e);
+					//需存表，或邮件通知，或预警
 				}
-				return remoteDataInfoMap;
+				
 			}
-		} catch (NumberFormatException e) {
-			logger.error("封装Sina数据为通用模板RemoteDataInfo数据异常", e);
+			return remoteDataInfoMap;
 		}
 		return null;
 	}

@@ -145,28 +145,29 @@ public class RemoteDataServiceImpl implements RemoteDataService {
 					realTimePrice = remote.getRealTimePrice()==0D?100D:remote.getRealTimePrice();
 					stockInfo.setRealTimePrice(realTimePrice);
 					stockInfo.setRatePercent(remote.getRatePercent());
+					
+					Double buyPrice = tbStock.getBuyPrice()==null?0.5D:tbStock.getBuyPrice().doubleValue();
+					stockInfo.setBuyPrice(buyPrice);
+					//买入还差百分之几
+					NumberFormat nf = NumberFormat.getPercentInstance();
+					nf.setMinimumFractionDigits(2);
+					BigDecimal b1 = new BigDecimal(Double.toString(realTimePrice - buyPrice));
+					BigDecimal b2 = new BigDecimal(Double.toString(realTimePrice));
+					Double buyRate = b1.divide(b2, 4, BigDecimal.ROUND_HALF_UP).doubleValue();
+					stockInfo.setBuyRateDouble(buyRate);
+					stockInfo.setBuyRate(nf.format(buyRate));
+					//最高点已跌百分比
+					Double maxValue = tbStock.getMaxValue()==null?200D:tbStock.getMaxValue().doubleValue();
+					b1 = new BigDecimal(Double.toString(maxValue - realTimePrice));
+					b2 = new BigDecimal(Double.toString(maxValue));
+					Double maxRate = b1.divide(b2, 4, BigDecimal.ROUND_HALF_UP).doubleValue();
+					stockInfo.setMaxRate(nf.format(maxRate));
+					stockInfo.setDescription(tbStock.getDescription()==null?"":tbStock.getDescription());
+					
+					viewList.add(stockInfo);
 				}else {
 					logger.info("code:{}, 远程数据对象为空", code);
 				}
-				Double buyPrice = tbStock.getBuyPrice()==null?0.5D:tbStock.getBuyPrice().doubleValue();
-				stockInfo.setBuyPrice(buyPrice);
-				//买入还差百分之几
-				NumberFormat nf = NumberFormat.getPercentInstance();
-				nf.setMinimumFractionDigits(2);
-				BigDecimal b1 = new BigDecimal(Double.toString(realTimePrice - buyPrice));
-				BigDecimal b2 = new BigDecimal(Double.toString(realTimePrice));
-				Double buyRate = b1.divide(b2, 4, BigDecimal.ROUND_HALF_UP).doubleValue();
-				stockInfo.setBuyRateDouble(buyRate);
-				stockInfo.setBuyRate(nf.format(buyRate));
-				//最高点已跌百分比
-				Double maxValue = tbStock.getMaxValue()==null?200D:tbStock.getMaxValue().doubleValue();
-				b1 = new BigDecimal(Double.toString(maxValue - realTimePrice));
-				b2 = new BigDecimal(Double.toString(maxValue));
-				Double maxRate = b1.divide(b2, 4, BigDecimal.ROUND_HALF_UP).doubleValue();
-				stockInfo.setMaxRate(nf.format(maxRate));
-				stockInfo.setDescription(tbStock.getDescription()==null?"":tbStock.getDescription());
-				
-				viewList.add(stockInfo);
 			} catch (Exception e) {
 				logger.error("根据远程数据组装展示数据方法异常:", e);
 			}
