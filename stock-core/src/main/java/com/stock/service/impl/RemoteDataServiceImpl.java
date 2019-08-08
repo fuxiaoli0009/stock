@@ -2,6 +2,7 @@ package com.stock.service.impl;
 
 import java.math.BigDecimal;
 import java.text.NumberFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -15,6 +16,7 @@ import com.stock.dataobject.RemoteDataInfo;
 import com.stock.dataobject.StockInfo;
 import com.stock.enums.StockTypeEnum;
 import com.stock.model.TbHistoryData;
+import com.stock.model.TbHistoryDataExample;
 import com.stock.model.TbStock;
 import com.stock.repository.TbHistoryDataMapper;
 import com.stock.service.HistoryDataService;
@@ -29,6 +31,8 @@ public class RemoteDataServiceImpl implements RemoteDataService {
 	private static final Logger logger = LoggerFactory.getLogger(RemoteDataServiceImpl.class);
 	
 	private final static String PBPEUrl = "https://www.jisilu.cn/data/stock/";
+	
+	private SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 	
 	public static String source = "0";
 	
@@ -261,14 +265,75 @@ public class RemoteDataServiceImpl implements RemoteDataService {
     	}
     	if(i>=4) {
     		logger.info("{}:判断为非交易日.", new Date());
-    		return false;
+    		return true;
     	}
     	logger.info("{}:判断为交易日.", new Date());
-		return true;
+		return false;
 	}
 
 	public List<Integer> getCloseIndexsByCode(String code) {
 		return tbHistoryDataMapper.getCloseIndexsByCode(code);
 	}
-
+	
+	public String calCloseValue(String code, String closeRatePercent) {
+		
+		BigDecimal closeValue = new BigDecimal(0);
+		BigDecimal closeRateDecimal = new BigDecimal(closeRatePercent.replace("%", ""));
+		BigDecimal cal = new BigDecimal(100);
+		TbHistoryDataExample example = new TbHistoryDataExample();
+		example.or().andCodeEqualTo(code).andCloseDateNotEqualTo(sdf.format(new Date()));
+		List<TbHistoryData> tbHistoryDataList = tbHistoryDataMapper.selectByExample(example);
+		if(tbHistoryDataList!=null&&tbHistoryDataList.size()>0) {
+			TbHistoryData lastHistoryData = tbHistoryDataList.get(tbHistoryDataList.size()-1);
+			BigDecimal lastCloseValue = new BigDecimal(lastHistoryData.getDescription());
+			closeValue = cal.add(closeRateDecimal).multiply(lastCloseValue).divide(cal, 3, BigDecimal.ROUND_HALF_DOWN);
+		} else {
+			closeValue = cal.add(closeRateDecimal).multiply(new BigDecimal(1000)).divide(cal, 3, BigDecimal.ROUND_HALF_DOWN);
+		}
+		System.out.println("closeValue.toString():"+closeValue.toString());
+		return closeValue.toString();
+	}
+	
+	public String getTodayIndex(String type, String calCode) {
+		List<TbStock> tbStocks = stockService.getStocksByType(type);
+		Map<String, RemoteDataInfo> remoteDataInfoMap = this.findRemoteDataInfoMap(type, tbStocks);
+		BigDecimal sum = new BigDecimal(0);
+		int staticNums = 0;
+		for(RemoteDataInfo remoteDataInfo : remoteDataInfoMap.values()) {
+			String code = remoteDataInfo.getCode();
+			try {
+				if(remoteDataInfo.getRealTimePrice()>0) {
+					String closeRatePercent = remoteDataInfo.getRatePercent();
+					String closeValue = this.calCloseValue(code, closeRatePercent);
+					sum = sum.add(new BigDecimal(closeValue));
+					staticNums++;
+				}
+			} catch (Exception e) {
+				logger.error("code:{}, 查询数据失败.", code);
+			}
+		}
+		logger.info("sum:{}, staticNums:{}.", sum, staticNums);
+		if(staticNums > 0) {
+			BigDecimal todayClosePrice = sum.divide(new BigDecimal(staticNums),3,BigDecimal.ROUND_HALF_DOWN);
+			return todayClosePrice.toString();
+		}
+		return null;
+	}
+	
+	public String getTodayIndexRatePercent(String calCode, BigDecimal todayClosePrice) {
+		try {
+			TbHistoryDataExample example = new TbHistoryDataExample();
+			example.or().andCodeEqualTo(calCode).andCloseDateNotEqualTo(sdf.format(new Date()));
+			List<TbHistoryData> tbHistoryDataList = tbHistoryDataMapper.selectByExample(example);
+			TbHistoryData tbHistoryData = tbHistoryDataList.get(tbHistoryDataList.size()-1);
+			BigDecimal lastClosePrice = tbHistoryData.getClosePrice();
+			logger.info("{}获取今日价格, lastClosePrice:{}, todayClosePrice:{}", calCode, lastClosePrice, todayClosePrice);
+			BigDecimal result = todayClosePrice.subtract(lastClosePrice).multiply(new BigDecimal(100)).divide(lastClosePrice, 3,BigDecimal.ROUND_HALF_DOWN);
+			return result.toString()+"%";
+		} catch (Exception e) {
+			logger.error("{}获取今日价格异常", calCode, e);
+			return "0.00%";
+		}
+	}
+	
 }

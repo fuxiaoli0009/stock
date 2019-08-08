@@ -6,17 +6,13 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.servlet.ModelAndView;
 
 import com.alibaba.fastjson.JSON;
 import com.stock.dataobject.RemoteDataInfo;
@@ -58,53 +54,6 @@ public class IndexController {
 		
 	}
 	
-    @ApiOperation(value = "查询", httpMethod = "GET")
-    @RequestMapping(value = "/index", method = RequestMethod.GET)
-    public ModelAndView index(Map<String, Object> map){
-    	
-    	//上证指数 start
-    	List<String> codes = new ArrayList<String>();
-    	codes.add("000001");
-    	codes.add("399006");
-    	Map<String, RemoteDataInfo> remoteMap = remoteDataService.findSHZSRemoteDataInfoMap(StockTypeEnum.STOCK_STATUS_HS.getCode(), source, codes);
-    	RemoteDataInfo remote = remoteMap.get("000001");
-    	String szRatePercent = remote.getRatePercent();
-    	remote = remoteMap.get("399006");
-    	String czRatePercent = remote.getRatePercent();
-    	//上证指数 end
-    	
-    	List<StockInfo> hsViewStocks = remoteDataService.findStocksByType(StockTypeEnum.STOCK_STATUS_HS.getCode(), source);
-    	List<StockInfo> hkViewStocks = remoteDataService.findStocksByType(StockTypeEnum.STOCK_STATUS_HK.getCode(), source);
-    	List<StockInfo> starViewStocks = remoteDataService.findStocksByType(StockTypeEnum.STOCK_STAR.getCode(), source);
-    	List<StockInfo> chosenViewStocks = remoteDataService.findStocksByType(StockTypeEnum.STOCK_STATUS_CHOSEN.getCode(), source);
-    	Collections.sort(hsViewStocks);
-    	Collections.sort(hkViewStocks);
-    	Collections.sort(starViewStocks);
-    	
-    	String hsAverageRatePercent = remoteDataService.calculateAverageRatePercent(hsViewStocks);
-    	String starAverageRatePercent = remoteDataService.calculateAverageRatePercent(starViewStocks);
-    	String chosenAverageRatePercent = remoteDataService.calculateAverageRatePercent(chosenViewStocks);
-    	
-    	//科创指数
-    	List<Integer> starCloseIndexs = remoteDataService.getCloseIndexsByCode("688000");
-    	if(remoteDataService.isTradingDayByStar()) {
-    		Integer lastCloseIndex = starCloseIndexs.get(starCloseIndexs.size()-1);
-    		BigDecimal todayIndex = new BigDecimal(100).add(new BigDecimal(starAverageRatePercent.replace("%", ""))).multiply(new BigDecimal(lastCloseIndex)).divide(new BigDecimal(100), 3, BigDecimal.ROUND_HALF_DOWN);
-    		starCloseIndexs.add(todayIndex.intValue());
-    	}
-    	
-    	map.put("hsStocks", hsViewStocks);
-    	map.put("hkStocks", hkViewStocks);
-        map.put("starStocks", starViewStocks);
-        map.put("hsAverageRatePercent", hsAverageRatePercent);
-        map.put("starAverageRatePercent", starAverageRatePercent);
-        map.put("chosenAverageRatePercent", chosenAverageRatePercent);
-        map.put("szRatePercent", szRatePercent);
-        map.put("czRatePercent", czRatePercent);
-        map.put("source", IndexController.source);
-    	return new ModelAndView("/index", "map", map);
-    }
-
 	@ApiOperation(value = "方式二", httpMethod = "POST")
     @RequestMapping(value = "/indexNew", method = RequestMethod.POST)
     public String indexNew(){
@@ -132,29 +81,32 @@ public class IndexController {
     	map.put("hsViewStocks", hsViewStocks);
     	
     	String hsAverageRatePercent = remoteDataService.calculateAverageRatePercent(hsViewStocks);
-    	String starAverageRatePercent = remoteDataService.calculateAverageRatePercent(starViewStocks);
     	String chosenAverageRatePercent = remoteDataService.calculateAverageRatePercent(chosenViewStocks);
     	
     	//科创指数
+    	Map<String, Object> maps = new HashMap<String, Object>();
     	List<Integer> starCloseIndexs = remoteDataService.getCloseIndexsByCode("688000");
     	if(remoteDataService.isTradingDayByStar()) {
-    		Integer lastCloseIndex = starCloseIndexs.get(starCloseIndexs.size()-1);
-    		BigDecimal todayIndex = new BigDecimal(100).add(new BigDecimal(starAverageRatePercent.replace("%", ""))).multiply(new BigDecimal(lastCloseIndex)).divide(new BigDecimal(100), 3, BigDecimal.ROUND_HALF_DOWN);
-    		starCloseIndexs.add(todayIndex.intValue());
+    		String todayClosePrice = remoteDataService.getTodayIndex(StockTypeEnum.STOCK_STAR.getCode(), "688000");
+    		if(todayClosePrice!=null) {
+    			starCloseIndexs.add(Double.valueOf(todayClosePrice).intValue());
+        		String starAverageRatePercent = remoteDataService.getTodayIndexRatePercent("688000", new BigDecimal(todayClosePrice));
+        		maps.put("starAverageRatePercent", starAverageRatePercent);
+    		}else {
+    			maps.put("starAverageRatePercent", "0.00%");
+    		}
     	}
     	
-    	Map<String, Object> map = new HashMap<String, Object>();
-    	map.put("hsStocks", hsViewStocks);
-    	map.put("hkStocks", hkViewStocks);
-        map.put("starStocks", starViewStocks);
-        map.put("hsAverageRatePercent", hsAverageRatePercent);
-        map.put("starAverageRatePercent", starAverageRatePercent);
-        map.put("chosenAverageRatePercent", chosenAverageRatePercent);
-        map.put("szRatePercent", szRatePercent);
-        map.put("czRatePercent", czRatePercent);
-        map.put("starCloseIndexs", starCloseIndexs);
-        map.put("source", IndexController.source);
-    	return JSON.toJSONString(map);
+    	maps.put("hsStocks", hsViewStocks);
+    	maps.put("hkStocks", hkViewStocks);
+        maps.put("starStocks", starViewStocks);
+        maps.put("hsAverageRatePercent", hsAverageRatePercent);
+        maps.put("chosenAverageRatePercent", chosenAverageRatePercent);
+        maps.put("szRatePercent", szRatePercent);
+        maps.put("czRatePercent", czRatePercent);
+        maps.put("starCloseIndexs", starCloseIndexs);
+        maps.put("source", IndexController.source);
+    	return JSON.toJSONString(maps);
     }
 	
 	
@@ -167,6 +119,11 @@ public class IndexController {
 			sb.append("<br/>");
 		}
 		return sb.toString();
+	}
+	
+	public static void main(String[] args) {
+		String a = "2948.149";
+		System.out.println(Double.valueOf(a).intValue());
 	}
 
 }

@@ -44,9 +44,9 @@ public class HistoryDataJobHandler extends IJobHandler {
 	@Override
 	public ReturnT<String> execute(String param) throws Exception {
 		String type = StockTypeEnum.STOCK_STAR.getCode();
-		String calCode = "688000";
 		try {
 			if(remoteDataService.isTradingDayByStar()) {
+				String calCode = "688000";
 				this.calAndSaveCloseDataInfo(type, calCode);
 				type = StockTypeEnum.STOCK_STATUS_CHOSEN.getCode();
 				calCode = "900001";
@@ -77,11 +77,13 @@ public class HistoryDataJobHandler extends IJobHandler {
 						TbHistoryDataExample example = new TbHistoryDataExample();
 						example.or().andCodeEqualTo(code).andCloseDateEqualTo(closeDate);
 						List<TbHistoryData> tbHistoryDataList = tbHistoryDataMapper.selectByExample(example);
+						String closeValue = remoteDataService.calCloseValue(code, closeRatePercent);
 						if(tbHistoryDataList!=null && tbHistoryDataList.size()>0) {//更新
 							TbHistoryData record = tbHistoryDataList.get(0);
 							record.setClosePrice(new BigDecimal(remoteDataInfo.getRealTimePrice()));
 							record.setCloseRatePercent(closeRatePercent);
 							record.setUpdateTime(new Date());
+							record.setDescription(closeValue);
 							tbHistoryDataMapper.updateByPrimaryKeySelective(record);
 						}else {
 							TbHistoryData record = new TbHistoryData();
@@ -90,13 +92,17 @@ public class HistoryDataJobHandler extends IJobHandler {
 							record.setCloseDate(closeDate);
 							record.setClosePrice(new BigDecimal(remoteDataInfo.getRealTimePrice()));
 							record.setCloseRatePercent(closeRatePercent);
+							record.setDescription(closeValue);
 							tbHistoryDataMapper.insertSelective(record);
 						}
 						logger.info("code:{}, 保存收盘数据成功.", code);
+						sum = sum.add(new BigDecimal(closeValue));
+						staticNums++;
+					}else {
+						//非科创只需保存收盘指数
+						sum = sum.add(new BigDecimal(closeRatePercent.replace("%", "")));
+						staticNums++;
 					}
-					//非科创只需保存收盘指数
-					sum = sum.add(new BigDecimal(closeRatePercent.replace("%", "")));
-					staticNums++;
 				}
 			} catch (Exception e) {
 				logger.error("code:{}, 保存收盘数据失败, 转手动处理.", code);
@@ -112,17 +118,25 @@ public class HistoryDataJobHandler extends IJobHandler {
 			List<TbHistoryData> tbHistoryDataList = tbHistoryDataMapper.selectByExample(example);
 			TbHistoryData tbHistoryData = tbHistoryDataList.get(tbHistoryDataList.size()-1);
 			BigDecimal lastClosePrice = tbHistoryData.getClosePrice();
-			BigDecimal avgRate = sum.divide(new BigDecimal(staticNums),3,BigDecimal.ROUND_HALF_DOWN);//平均涨幅（无%）
-			BigDecimal cal = new BigDecimal(100);
-			BigDecimal closePrice = cal.add(avgRate).multiply(lastClosePrice).divide(new BigDecimal(100), 3, BigDecimal.ROUND_HALF_DOWN);
-			logger.info("【记录收盘数据-类型{}】staticNums:{}, sum:{}, closePrice:{}, lastClosePrice", type, staticNums, sum, closePrice, lastClosePrice);
+			
+			BigDecimal closePrice = new BigDecimal(0);
+			String closeRatePercent = "";
+			if(StockTypeEnum.STOCK_STAR.getCode().equals(type)) {  
+				closePrice = sum.divide(new BigDecimal(staticNums),3,BigDecimal.ROUND_HALF_DOWN);
+			} else {
+				BigDecimal avgRate = sum.divide(new BigDecimal(staticNums),3,BigDecimal.ROUND_HALF_DOWN);//平均涨幅（无%）
+				BigDecimal cal = new BigDecimal(100);
+				closeRatePercent = avgRate.toString()+"%";
+				closePrice = cal.add(avgRate).multiply(lastClosePrice).divide(new BigDecimal(100), 3, BigDecimal.ROUND_HALF_DOWN);
+			}
+			logger.info("【记录收盘数据-类型{}】staticNums:{}, sum:{}, closePrice:{}, lastClosePrice:{}", type, staticNums, sum, closePrice, lastClosePrice);
 			TbHistoryDataExample exampleToday = new TbHistoryDataExample();
 			exampleToday.or().andCodeEqualTo(calCode).andCloseDateEqualTo(closeDate);
 			List<TbHistoryData> tbHistoryDataListToday = tbHistoryDataMapper.selectByExample(exampleToday);
 			if(tbHistoryDataListToday!=null&&tbHistoryDataListToday.size()>0) {
 				TbHistoryData record = tbHistoryDataListToday.get(0);
 				record.setClosePrice(closePrice);
-				record.setCloseRatePercent(avgRate.toString()+"%");
+				record.setCloseRatePercent(closeRatePercent);
 				record.setUpdateTime(new Date());
 				tbHistoryDataMapper.updateByPrimaryKeySelective(record);
 			} else {
@@ -131,11 +145,11 @@ public class HistoryDataJobHandler extends IJobHandler {
 				record.setName("");
 				record.setCloseDate(closeDate);
 				record.setClosePrice(closePrice);
-				record.setCloseRatePercent(avgRate.toString()+"%");
+				record.setCloseRatePercent(closeRatePercent);
 				tbHistoryDataMapper.insertSelective(record);
 			}
 			logger.info("【记录收盘数据-类型{}】今日{}指数数据记录成功[上条数据时间:{}]", type, closeDate, tbHistoryData.getCloseDate());
 		}
 	}
-
+	
 }

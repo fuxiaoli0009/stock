@@ -4,6 +4,7 @@ import com.stock.dataobject.RemoteDataInfo;
 import com.stock.dataobject.StockInfo;
 import com.stock.model.TbStock;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 
@@ -38,4 +39,10 @@ public interface RemoteDataService {
 	 * @return
 	 */
 	public List<Integer> getCloseIndexsByCode(String code);
+	
+	public String calCloseValue(String code, String closeRatePercent);
+	
+	public String getTodayIndex(String type, String calCode);
+	
+	public String getTodayIndexRatePercent(String calCode, BigDecimal todayClosePrice);
 }
