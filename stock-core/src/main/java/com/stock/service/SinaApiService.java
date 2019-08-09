@@ -2,7 +2,6 @@ package com.stock.service;
 
 import java.math.BigDecimal;
 import java.text.NumberFormat;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -33,6 +32,9 @@ public class SinaApiService {
 	@Autowired
 	RestTemplate restTemplate;
 	
+	@Autowired
+	private WarningInfoService warningInfoService;
+	
 	public Map<String, RemoteDataInfo> getRealTimeInfoFromRemote(String codes) {
 		String response = null;
 		try {
@@ -43,8 +45,8 @@ public class SinaApiService {
 			watch.stop();
 			logger.info("调用Sina接口批量查询股票实时信息, 耗时:{}毫秒, 返回结果:{}", watch.getTime(), response);
 		} catch (RestClientException e) {
-			logger.error("调用Sina接口批量查询股票实时信息", e);
-			//存表，邮件，或报警
+			logger.error("调用Sina接口批量查询股票实时信息异常", e);
+			warningInfoService.saveWarningInfo("SINA", "调用Sina接口批量查询股票实时信息异常, codes="+codes);
 		}
 		return remoteDataInfoMap(response);
 	}
@@ -107,13 +109,13 @@ public class SinaApiService {
 						remoteDataInfoMap.put(remote.getCode(), remote);
 					}else {
 						logger.error("封装Sina数据为通用模板RemoteDataInfo数据异常, 长度不够", responseArray[i]);
+						warningInfoService.saveWarningInfo("SINA", "封装Sina数据为通用模板RemoteDataInfo数据异常, 长度不够, responseArray[i]="+responseArray[i]);
 					}
 					
 				} catch (Exception e) {
 					logger.error("封装Sina数据为通用模板RemoteDataInfo数据异常,{}", responseArray[i], e);
-					//需存表，或邮件通知，或预警
+					warningInfoService.saveWarningInfo("SINA", "封装Sina数据为通用模板RemoteDataInfo数据异常, responseArray[i]="+responseArray[i]);
 				}
-				
 			}
 			return remoteDataInfoMap;
 		}
@@ -145,6 +147,7 @@ public class SinaApiService {
     				sb.append(",");
     			} catch (Exception e) {
     				logger.error("code:{}, Sina接字符串异常, 请修改数据库相关字段, 异常:{}", code, ExceptionUtils.getStackTrace(e));
+    				warningInfoService.saveWarningInfo("SINA", "code:"+code+", Sina接字符串异常.");
     			}
             }
             return sb.toString().substring(0, sb.length()-1);

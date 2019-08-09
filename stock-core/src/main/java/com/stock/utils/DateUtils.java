@@ -1,10 +1,17 @@
 package com.stock.utils;
 
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
 public class DateUtils {
 
+	private static SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+	
+	public static String getDate(Date date) {
+		return sdf.format(date);
+	}
+	
 	/**
 	 * 返回昨天
 	 * 

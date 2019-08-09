@@ -51,7 +51,7 @@
             <property name="enableSubPackages" value="true"/>
         </javaClientGenerator>
 
-        <table tableName="tb_history_data"
+        <table tableName="tb_warning_info"
                enableCountByExample="true"
                enableUpdateByExample="true"
                enableDeleteByExample="true"

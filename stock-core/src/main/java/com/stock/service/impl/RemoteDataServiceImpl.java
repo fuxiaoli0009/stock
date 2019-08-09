@@ -265,10 +265,10 @@ public class RemoteDataServiceImpl implements RemoteDataService {
     	}
     	if(i>=4) {
     		logger.info("{}:判断为非交易日.", new Date());
-    		return true;
+    		return false;
     	}
     	logger.info("{}:判断为交易日.", new Date());
-		return false;
+		return true;
 	}
 
 	public List<Integer> getCloseIndexsByCode(String code) {
@@ -324,8 +324,9 @@ public class RemoteDataServiceImpl implements RemoteDataService {
 		try {
 			TbHistoryDataExample example = new TbHistoryDataExample();
 			example.or().andCodeEqualTo(calCode).andCloseDateNotEqualTo(sdf.format(new Date()));
+			example.setOrderByClause("close_date desc");
 			List<TbHistoryData> tbHistoryDataList = tbHistoryDataMapper.selectByExample(example);
-			TbHistoryData tbHistoryData = tbHistoryDataList.get(tbHistoryDataList.size()-1);
+			TbHistoryData tbHistoryData = tbHistoryDataList.get(0);
 			BigDecimal lastClosePrice = tbHistoryData.getClosePrice();
 			logger.info("{}获取今日价格, lastClosePrice:{}, todayClosePrice:{}", calCode, lastClosePrice, todayClosePrice);
 			BigDecimal result = todayClosePrice.subtract(lastClosePrice).multiply(new BigDecimal(100)).divide(lastClosePrice, 3,BigDecimal.ROUND_HALF_DOWN);

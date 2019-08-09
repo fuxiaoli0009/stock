@@ -95,6 +95,8 @@ public class IndexController {
     		}else {
     			maps.put("starAverageRatePercent", "0.00%");
     		}
+    	}else {
+    		maps.put("starAverageRatePercent", "0.00%");
     	}
     	
     	maps.put("hsStocks", hsViewStocks);
@@ -121,9 +123,4 @@ public class IndexController {
 		return sb.toString();
 	}
 	
-	public static void main(String[] args) {
-		String a = "2948.149";
-		System.out.println(Double.valueOf(a).intValue());
-	}
-
 }
