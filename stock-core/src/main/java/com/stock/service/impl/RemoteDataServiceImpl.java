@@ -24,6 +24,7 @@ import com.stock.service.RemoteDataService;
 import com.stock.service.SinaApiService;
 import com.stock.service.StockService;
 import com.stock.service.TencentApiService;
+import com.stock.service.WarningInfoService;
 
 @Service
 public class RemoteDataServiceImpl implements RemoteDataService {
@@ -50,6 +51,9 @@ public class RemoteDataServiceImpl implements RemoteDataService {
 	
 	@Autowired
 	private HistoryDataService historyDataService;
+	
+	@Autowired
+	private WarningInfoService warningInfoService;
 	
 	public List<StockInfo> findStocksByType(String type, String source) {
     	List<TbStock> tbStocks = stockService.getStocksByType(type);
@@ -171,9 +175,11 @@ public class RemoteDataServiceImpl implements RemoteDataService {
 					viewList.add(stockInfo);
 				}else {
 					logger.info("code:{}, 远程数据对象为空", code);
+					warningInfoService.saveWarningInfo("RemoteDataService", "code:"+code+", 远程数据对象为空");
 				}
 			} catch (Exception e) {
 				logger.error("根据远程数据组装展示数据方法异常:", e);
+				warningInfoService.saveWarningInfo("RemoteDataService", "根据远程数据组装展示数据方法异常,code:"+tbStocks.get(i).getCode()+"."+e);
 			}
 		}
 		return viewList;
@@ -189,20 +195,25 @@ public class RemoteDataServiceImpl implements RemoteDataService {
 	}
 
 	public String calculateAverageRatePercent(List<StockInfo> stocks) {
-		if(stocks!=null && stocks.size()>0) {
-			BigDecimal sum = new BigDecimal(0);
-			int staticNums = 0;
-			for(int i=0; i<stocks.size(); i++) {
-				if(stocks.get(i).getRatePercent().contains("%") && stocks.get(i).getRealTimePrice()>0) {
-					sum = sum.add(new BigDecimal(stocks.get(i).getRatePercent().replace("%", "")));
-					staticNums++;
+		try {
+			if(stocks!=null && stocks.size()>0) {
+				BigDecimal sum = new BigDecimal(0);
+				int staticNums = 0;
+				for(int i=0; i<stocks.size(); i++) {
+					if(stocks.get(i).getRatePercent().contains("%") && stocks.get(i).getRealTimePrice()>0) {
+						sum = sum.add(new BigDecimal(stocks.get(i).getRatePercent().replace("%", "")));
+						staticNums++;
+					}
+				}	
+				if(staticNums > 0) {
+					BigDecimal result = sum.divide(new BigDecimal(staticNums),3,BigDecimal.ROUND_HALF_DOWN);
+					logger.info("sum:{}, staticNums:{}, result:{}", sum, staticNums, result.toString()+"%");
+					return result.toString()+"%";
 				}
-			}	
-			if(staticNums > 0) {
-				BigDecimal result = sum.divide(new BigDecimal(staticNums),3,BigDecimal.ROUND_HALF_DOWN);
-				logger.info("sum:{}, staticNums:{}, result:{}", sum, staticNums, result.toString()+"%");
-				return result.toString()+"%";
 			}
+		} catch (Exception e) {
+			logger.error("计算平均涨跌幅异常", e);
+			warningInfoService.saveWarningInfo("RemoteDataService", "计算平均涨跌幅异常,stocks:"+stocks.toString()+"."+e);
 		}
 		return "0.00%";
 	}
@@ -231,43 +242,48 @@ public class RemoteDataServiceImpl implements RemoteDataService {
 	}
 	
 	public Boolean isTradingDayByStar() {
-		List<TbStock> tbStocks = new ArrayList<TbStock>();
-		TbStock tbStock = new TbStock();
-		tbStock.setCode("688001");
-		tbStocks.add(tbStock);
-		tbStock = new TbStock();
-		tbStock.setCode("688002");
-		tbStocks.add(tbStock);
-		tbStock = new TbStock();
-		tbStock.setCode("688003");
-		tbStocks.add(tbStock);
-		tbStock = new TbStock();
-		tbStock.setCode("688005");
-		tbStocks.add(tbStock);
-		tbStock = new TbStock();
-		tbStock.setCode("688006");
-		tbStocks.add(tbStock);
-		tbStock = new TbStock();
-		tbStock.setCode("688007");
-		tbStocks.add(tbStock);
-		tbStock = new TbStock();
-		tbStock.setCode("688008");
-		tbStocks.add(tbStock);
-    	Map<String, RemoteDataInfo> remoteMap = this.findRemoteDataInfoMap(StockTypeEnum.STOCK_STAR.getCode(), tbStocks);
-    	int i=0;
-    	for(RemoteDataInfo remoteDataInfo : remoteMap.values()) {
-    		TbHistoryData tbHistoryData = historyDataService.selectByCode(remoteDataInfo.getCode());
-    		if(tbHistoryData!=null) {
-    			if(tbHistoryData.getCloseRatePercent().equals(remoteDataInfo.getRatePercent())) {
-    				i++;
-    			}
-    		}
-    	}
-    	if(i>=4) {
-    		logger.info("{}:判断为非交易日.", new Date());
-    		return false;
-    	}
-    	logger.info("{}:判断为交易日.", new Date());
+		try {
+			List<TbStock> tbStocks = new ArrayList<TbStock>();
+			TbStock tbStock = new TbStock();
+			tbStock.setCode("688001");
+			tbStocks.add(tbStock);
+			tbStock = new TbStock();
+			tbStock.setCode("688002");
+			tbStocks.add(tbStock);
+			tbStock = new TbStock();
+			tbStock.setCode("688003");
+			tbStocks.add(tbStock);
+			tbStock = new TbStock();
+			tbStock.setCode("688005");
+			tbStocks.add(tbStock);
+			tbStock = new TbStock();
+			tbStock.setCode("688006");
+			tbStocks.add(tbStock);
+			tbStock = new TbStock();
+			tbStock.setCode("688007");
+			tbStocks.add(tbStock);
+			tbStock = new TbStock();
+			tbStock.setCode("688008");
+			tbStocks.add(tbStock);
+			Map<String, RemoteDataInfo> remoteMap = this.findRemoteDataInfoMap(StockTypeEnum.STOCK_STAR.getCode(), tbStocks);
+			int i=0;
+			for(RemoteDataInfo remoteDataInfo : remoteMap.values()) {
+				TbHistoryData tbHistoryData = historyDataService.selectByCode(remoteDataInfo.getCode());
+				if(tbHistoryData!=null) {
+					if(tbHistoryData.getCloseRatePercent().equals(remoteDataInfo.getRatePercent())) {
+						i++;
+					}
+				}
+			}
+			if(i>=4) {
+				logger.info("{}:判断为非交易日.", new Date());
+				return false;
+			}
+			logger.info("{}:判断为交易日.", new Date());
+		} catch (Exception e) {
+			logger.error("判断是否为交易日异常", e);
+			warningInfoService.saveWarningInfo("RemoteDataService", "判断是否为交易日异常,"+e);
+		}
 		return true;
 	}
 
@@ -278,44 +294,53 @@ public class RemoteDataServiceImpl implements RemoteDataService {
 	public String calCloseValue(String code, String closeRatePercent) {
 		
 		BigDecimal closeValue = new BigDecimal(0);
-		BigDecimal closeRateDecimal = new BigDecimal(closeRatePercent.replace("%", ""));
-		BigDecimal cal = new BigDecimal(100);
-		TbHistoryDataExample example = new TbHistoryDataExample();
-		example.or().andCodeEqualTo(code).andCloseDateNotEqualTo(sdf.format(new Date()));
-		List<TbHistoryData> tbHistoryDataList = tbHistoryDataMapper.selectByExample(example);
-		if(tbHistoryDataList!=null&&tbHistoryDataList.size()>0) {
-			TbHistoryData lastHistoryData = tbHistoryDataList.get(tbHistoryDataList.size()-1);
-			BigDecimal lastCloseValue = new BigDecimal(lastHistoryData.getDescription());
-			closeValue = cal.add(closeRateDecimal).multiply(lastCloseValue).divide(cal, 3, BigDecimal.ROUND_HALF_DOWN);
-		} else {
-			closeValue = cal.add(closeRateDecimal).multiply(new BigDecimal(1000)).divide(cal, 3, BigDecimal.ROUND_HALF_DOWN);
+		try {
+			BigDecimal closeRateDecimal = new BigDecimal(closeRatePercent.replace("%", ""));
+			BigDecimal cal = new BigDecimal(100);
+			TbHistoryDataExample example = new TbHistoryDataExample();
+			example.or().andCodeEqualTo(code).andCloseDateNotEqualTo(sdf.format(new Date()));
+			List<TbHistoryData> tbHistoryDataList = tbHistoryDataMapper.selectByExample(example);
+			if(tbHistoryDataList!=null&&tbHistoryDataList.size()>0) {
+				TbHistoryData lastHistoryData = tbHistoryDataList.get(tbHistoryDataList.size()-1);
+				BigDecimal lastCloseValue = new BigDecimal(lastHistoryData.getDescription());
+				closeValue = cal.add(closeRateDecimal).multiply(lastCloseValue).divide(cal, 3, BigDecimal.ROUND_HALF_DOWN);
+			} else {
+				closeValue = cal.add(closeRateDecimal).multiply(new BigDecimal(1000)).divide(cal, 3, BigDecimal.ROUND_HALF_DOWN);
+			}
+		} catch (Exception e) {
+			logger.error("code:{}, closeRatePercent:{}, 计算收盘值异常异常", code, closeRatePercent, e);
+			warningInfoService.saveWarningInfo("RemoteDataService", "code:"+code+", closeRatePercent:"+closeRatePercent+", 计算收盘值异常异常,"+e);
 		}
-		System.out.println("closeValue.toString():"+closeValue.toString());
 		return closeValue.toString();
 	}
 	
 	public String getTodayIndex(String type, String calCode) {
-		List<TbStock> tbStocks = stockService.getStocksByType(type);
-		Map<String, RemoteDataInfo> remoteDataInfoMap = this.findRemoteDataInfoMap(type, tbStocks);
-		BigDecimal sum = new BigDecimal(0);
-		int staticNums = 0;
-		for(RemoteDataInfo remoteDataInfo : remoteDataInfoMap.values()) {
-			String code = remoteDataInfo.getCode();
-			try {
-				if(remoteDataInfo.getRealTimePrice()>0) {
-					String closeRatePercent = remoteDataInfo.getRatePercent();
-					String closeValue = this.calCloseValue(code, closeRatePercent);
-					sum = sum.add(new BigDecimal(closeValue));
-					staticNums++;
+		try {
+			List<TbStock> tbStocks = stockService.getStocksByType(type);
+			Map<String, RemoteDataInfo> remoteDataInfoMap = this.findRemoteDataInfoMap(type, tbStocks);
+			BigDecimal sum = new BigDecimal(0);
+			int staticNums = 0;
+			for(RemoteDataInfo remoteDataInfo : remoteDataInfoMap.values()) {
+				String code = remoteDataInfo.getCode();
+				try {
+					if(remoteDataInfo.getRealTimePrice()>0) {
+						String closeRatePercent = remoteDataInfo.getRatePercent();
+						String closeValue = this.calCloseValue(code, closeRatePercent);
+						sum = sum.add(new BigDecimal(closeValue));
+						staticNums++;
+					}
+				} catch (Exception e) {
+					logger.error("code:{}, 查询数据失败.", code);
 				}
-			} catch (Exception e) {
-				logger.error("code:{}, 查询数据失败.", code);
 			}
-		}
-		logger.info("sum:{}, staticNums:{}.", sum, staticNums);
-		if(staticNums > 0) {
-			BigDecimal todayClosePrice = sum.divide(new BigDecimal(staticNums),3,BigDecimal.ROUND_HALF_DOWN);
-			return todayClosePrice.toString();
+			logger.info("sum:{}, staticNums:{}.", sum, staticNums);
+			if(staticNums > 0) {
+				BigDecimal todayClosePrice = sum.divide(new BigDecimal(staticNums),3,BigDecimal.ROUND_HALF_DOWN);
+				return todayClosePrice.toString();
+			}
+		} catch (Exception e) {
+			logger.error("calCode:{}, 计算今日指数值异常.", calCode, e);
+			warningInfoService.saveWarningInfo("RemoteDataService", "calCode:"+calCode+", 计算今日指数值异常."+e);
 		}
 		return null;
 	}
@@ -333,6 +358,7 @@ public class RemoteDataServiceImpl implements RemoteDataService {
 			return result.toString()+"%";
 		} catch (Exception e) {
 			logger.error("{}获取今日价格异常", calCode, e);
+			warningInfoService.saveWarningInfo("RemoteDataService", "calCode:"+calCode+", 获取今日价格异常."+e);
 			return "0.00%";
 		}
 	}
