@@ -18,6 +18,8 @@ import com.alibaba.fastjson.JSON;
 import com.stock.dataobject.RemoteDataInfo;
 import com.stock.dataobject.StockInfo;
 import com.stock.enums.StockTypeEnum;
+import com.stock.model.TbWarningInfo;
+import com.stock.service.WarningInfoService;
 import com.stock.service.impl.RemoteDataServiceImpl;
 import io.swagger.annotations.ApiOperation;
 
@@ -33,6 +35,9 @@ public class IndexController {
 	
 	@Autowired
 	private RemoteDataServiceImpl remoteDataService;
+	
+	@Autowired
+	private WarningInfoService warningInfoService;
 	
 	@ApiOperation(value = "切换", httpMethod = "GET")
     @RequestMapping(value = "/switch", method = RequestMethod.GET)
@@ -111,7 +116,6 @@ public class IndexController {
     	return JSON.toJSONString(maps);
     }
 	
-	
 	@RequestMapping(value = "/getCodes", method = RequestMethod.POST)
 	public String getCodes() {
 		List<StockInfo> hsViewStocks = map.get("hsViewStocks");
@@ -122,5 +126,19 @@ public class IndexController {
 		}
 		return sb.toString();
 	}
+	
+	@ApiOperation(value = "预警信息", httpMethod = "POST")
+    @RequestMapping(value = "/showWarningInfos", method = RequestMethod.POST)
+    public String showWarningInfos(){
+		Map<String, Object> maps = new HashMap<String, Object>();
+		try {
+			List<TbWarningInfo> warningInfos = warningInfoService.selectByStatus("0");
+			maps.put("warningInfos", warningInfos);
+		} catch (Exception e) {
+			//异常存表
+			logger.error("查询预警信息异常", e);
+		}
+    	return JSON.toJSONString(maps);
+    }
 	
 }
